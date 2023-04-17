@@ -1,12 +1,16 @@
-const { timeStamp, timeLog } = require('console');
-var http = require('http');
+const http = require('http');
 
+const hostname = '127.0.0.1';
+const port = 3000;
 
-http.createServer(function(request, response) {
+const server = http.createServer((req, res) => {
     console.log("There was a request " + new Date().getHours() + ":" + new Date().getMinutes() + ":" + new Date().getSeconds());
-    response.writeHead(200, {'Content-Type': 'text/html'});
-    response.write('<h1>Hello World!</h1><p>dit is HTML!</p>');
-    response.end();
-}).listen(3000);
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/html');
+    res.write('<h1>Hello World!</h1><p>dit is HTML!</p>');
+    res.end();
+});
 
-console.log('Listening to port 3000');
+server.listen(port, hostname, () => {
+    console.log(`Server running at http://${hostname}:${port}/`);
+});
