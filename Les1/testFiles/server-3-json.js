@@ -6,7 +6,8 @@ const port = 3000;
 const server = http.createServer((req, res) => {
     console.log("There was a request " + new Date().getHours() + ":" + new Date().getMinutes() + ":" + new Date().getSeconds());
     res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/json');const exampleArray = ["item1", "item2"]
+    res.setHeader('Content-Type', 'text/json');
+    const exampleArray = ["item1", "item2"]
     const exmapleObject = {
         item1: "item1val",
         item2: "item2val"
