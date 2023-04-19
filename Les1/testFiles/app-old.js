@@ -65,5 +65,5 @@ app.get('/example/d', [cb0, cb1], (req, res, next) => {
     res.send('Hello from D!')
 })
 
-const birds = require('./testFiles/birds.js');
+const birds = require('./birds.js');
 app.use('/birds', birds)
