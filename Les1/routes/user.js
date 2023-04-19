@@ -1,11 +1,12 @@
 const express = require('express')
 const router = express.Router()
+const logger = require('tracer').colorConsole();
 
 router.get('/', (req, res) => {
     const userArray = [{ name: "user1", id: 001 }, { name: "user2", id: 002 }]
     const field1 = req.query.field1;
     const field2 = req.query.field2;
-    console.log(`Field 1: ${field1}, Field 2: ${field2}`)
+    logger.debug(`Field 1: ${field1}, Field 2: ${field2}`)
     res.json({
         userArray: userArray
     });
@@ -25,7 +26,7 @@ router.get('/profile', (req, res) => {
 
 router.route('/:userId')
     .get((req, res) => {
-        console.log(`Getting userdata for ${req.params.userId}`)
+        logger.log(`Getting userdata for ${req.params.userId}`)
         switch (req.params.userId) {
             case '001':
                 res.json({

@@ -2,13 +2,14 @@ const express = require('express')
 const config = require('./config.json');
 const app = express()
 const port = config.port;
+const logger = require('tracer').colorConsole();
 
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+    logger.debug(`Example app listening on port ${port}`)
 })
 
 app.use('/', (req, res, next) => {
-    console.log(`${req.method} request on ${req.originalUrl} at: ${new Date().toLocaleTimeString()}`)
+    logger.log(`${req.method} request on ${req.originalUrl}`)
     next()
 })
 

@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const logger = require('tracer').colorConsole();
 
 router.post('/', (req, res) => {
     //Valideren
