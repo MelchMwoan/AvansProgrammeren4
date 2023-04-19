@@ -3,11 +3,9 @@ const router = express.Router()
 const logger = require('tracer').colorConsole();
 
 router.post('/', (req, res) => {
-    //Valideren
-    //Persisteren -> uniek ID
     res.json({
         status: "200",
-        message: "Server Info",
+        message: "Register-endpoint",
         data: {
             email: "henk.jan@mail.nl",
             firstName: "Henk",

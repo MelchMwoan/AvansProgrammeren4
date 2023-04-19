@@ -9,7 +9,7 @@ router.get('/', (req, res) => {
     logger.debug(`Field 1: ${field1}, Field 2: ${field2}`)
     res.json({
         status: "200",
-        message: "Server Info",
+        message: "All Users-endpoint",
         data: {
             userArray: userArray
         }
@@ -20,7 +20,7 @@ router.get('/', (req, res) => {
 router.get('/profile', (req, res) =>
     res.json({
         status: "200",
-        message: "Server Info",
+        message: "Profile-endpoint",
         data: {
             email: "henk.jan@mail.nl",
             firstName: "Henk",
@@ -39,7 +39,7 @@ router.route('/:userId')
             case '001':
                 res.json({
                     status: "200",
-                    message: "Server Info",
+                    message: "Userdata-endpoint",
                     data: {
                         email: "henk.jan@mail.nl",
                         firstName: "Henk",
@@ -53,7 +53,7 @@ router.route('/:userId')
             case '002':
                 res.json({
                     status: "200",
-                    message: "Server Info",
+                    message: "Userdata-endpoint",
                     data: {
                         email: "man.vrouw@mail.nl",
                         firstName: "Man",
@@ -72,7 +72,7 @@ router.route('/:userId')
     .put((req, res) => {
         res.json({
             status: "200",
-            message: "Server Info",
+            message: "Put User-endpoint",
             data: {
                 email: "henk.jan@mail.nl",
                 firstName: "Henk",
