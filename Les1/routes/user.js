@@ -8,21 +8,29 @@ router.get('/', (req, res) => {
     const field2 = req.query.field2;
     logger.debug(`Field 1: ${field1}, Field 2: ${field2}`)
     res.json({
-        userArray: userArray
+        status: "200",
+        message: "Server Info",
+        data: {
+            userArray: userArray
+        }
     });
     //Return list users
 })
 
-router.get('/profile', (req, res) => {
+router.get('/profile', (req, res) =>
     res.json({
-        email: "henk.jan@mail.nl",
-        firstName: "Henk",
-        lastName: "Jan",
-        address: "Lovensdijkstraat 63, Breda",
-        password: "rAnDoMww",
-        userId: 001
-    });
-})
+        status: "200",
+        message: "Server Info",
+        data: {
+            email: "henk.jan@mail.nl",
+            firstName: "Henk",
+            lastName: "Jan",
+            address: "Lovensdijkstraat 63, Breda",
+            password: "rAnDoMww",
+            userId: 001
+        }
+    })
+);
 
 router.route('/:userId')
     .get((req, res) => {
@@ -30,22 +38,30 @@ router.route('/:userId')
         switch (req.params.userId) {
             case '001':
                 res.json({
-                    email: "henk.jan@mail.nl",
-                    firstName: "Henk",
-                    lastName: "Jan",
-                    address: "Lovensdijkstraat 63, Breda",
-                    password: "rAnDoMww",
-                    userId: 001
+                    status: "200",
+                    message: "Server Info",
+                    data: {
+                        email: "henk.jan@mail.nl",
+                        firstName: "Henk",
+                        lastName: "Jan",
+                        address: "Lovensdijkstraat 63, Breda",
+                        password: "rAnDoMww",
+                        userId: 001
+                    }
                 });
                 break;
             case '002':
                 res.json({
-                    email: "man.vrouw@mail.nl",
-                    firstName: "Man",
-                    lastName: "Vrouw",
-                    address: "RandomWeg 69, Amstelveen",
-                    password: "NogRaarderWacht",
-                    userId: 002
+                    status: "200",
+                    message: "Server Info",
+                    data: {
+                        email: "man.vrouw@mail.nl",
+                        firstName: "Man",
+                        lastName: "Vrouw",
+                        address: "RandomWeg 69, Amstelveen",
+                        password: "NogRaarderWacht",
+                        userId: 002
+                    }
                 });
                 break;
             default:
@@ -53,17 +69,21 @@ router.route('/:userId')
                 break;
         }
     })
-    .put((req, res) => {        
+    .put((req, res) => {
         res.json({
-            email: "henk.jan@mail.nl",
-            firstName: "Henk",
-            lastName: "Jan",
-            address: "Lovensdijkstraat 63, Breda",
-            password: "rAnDoMww",
-            userId: 001
+            status: "200",
+            message: "Server Info",
+            data: {
+                email: "henk.jan@mail.nl",
+                firstName: "Henk",
+                lastName: "Jan",
+                address: "Lovensdijkstraat 63, Breda",
+                password: "rAnDoMww",
+                userId: 001
+            }
         });
     })
-    .delete((req, res) => {        
+    .delete((req, res) => {
         res.send(`User met ID #${req.params.userId} is verwijderd`);
     })
 
