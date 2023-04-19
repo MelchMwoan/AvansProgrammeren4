@@ -8,7 +8,7 @@ router.get('/', (req, res) => {
         message: "Server Info-endpoint",
         data: {
             studentName: "Melchior Willenborg",
-            studentNumber: "2205378",
+            studentNumber: 2205378,
             description: "Dit is de ShareAMeal API voor programmeren 4"
         }
     });
