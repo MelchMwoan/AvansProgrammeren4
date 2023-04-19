@@ -28,3 +28,5 @@ app.use('*',(req, res) => {
         data: {}
     })
 })
+
+module.exports = app;
