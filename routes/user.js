@@ -29,7 +29,11 @@ router.get('/', (req, res) => {
         let result = [...userArray];
         for (const [key, value] of Object.entries(req.query)) {
             result = result.filter(function (user) {
-                return value == user[key]
+                if (user[key] != undefined) {
+                    return value == user[key]
+                } else {
+                    return true;
+                }
             })
         }
         res.status(200).json({
@@ -47,7 +51,7 @@ router.get('/', (req, res) => {
 })
 
 router.get('/profile', (req, res) => {
-    //TODO: Implement token usage (authorization), right now valid token=1 or 2
+    //TODO: Implement token usage (authorization)
     if (req.query.token == undefined) {
         res.status(401).json({
             status: 401,
@@ -55,31 +59,21 @@ router.get('/profile', (req, res) => {
             data: {}
         })
     } else {
-        switch (req.query.token.trim()) {
-            case "1":
-                logger.info(`User with token ${req.query.token} called profile info`)
-                res.status(200).json({
-                    status: 200,
-                    message: "Profile-endpoint",
-                    data: userArray[0]
-                })
-                break;
-            case "2":
-                logger.info(`User with token ${req.query.token} called profile info`)
-                res.status(200).json({
-                    status: 200,
-                    message: "Profile-endpoint",
-                    data: userArray[1]
-                })
-                break;
-            default:
-                logger.error(`Token ${req.query.token} is invalid`)
-                res.status(401).json({
-                    status: 401,
-                    message: `Profile-endpoint: Unauthorized, Invalid token ${req.query.token}`,
-                    data: {}
-                })
-                break;
+        if (true) {
+            logger.info(`User with token ${req.query.token} called profile info`)
+            res.status(200).json({
+                status: 200,
+                message: "Profile-endpoint",
+                data: userArray[0]
+            })
+        } else {
+            //Run on invalid token
+            logger.error(`Token ${req.query.token} is invalid`)
+            res.status(401).json({
+                status: 401,
+                message: `Profile-endpoint: Unauthorized, Invalid token ${req.query.token}`,
+                data: {}
+            })
         }
     }
 }
@@ -87,35 +81,40 @@ router.get('/profile', (req, res) => {
 
 router.route('/:userId')
     .get((req, res) => {
-        //TODO: implement check for ownership through authorization
-        //TODO: check token
-        logger.debug(`Getting userdata for: ${req.params.userId}`)
-        userArray.forEach(user => {
-            if (user.id == req.params.userId) {
-                let returnuser = (({ password, ...o }) => o)(user)
-                if (req.query.owner == "true") {
-                    returnuser = user;
-                }
-                res.status(200).json({
-                    status: 200,
-                    message: `Userdata-endpoint: User info for ${req.params.userId}`,
-                    data: returnuser
-                });
-                return;
-            }
-        })
-        if (!res.headersSent) {
-            logger.error(`User ${req.params.userId} does not exist`)
-            res.status(404).json({
-                status: 404,
-                message: `Userdata-endpoint: Not Found, User with ID #${req.params.userId} not found`,
+        //TODO: check token 401
+        if (req.query.token == undefined) {
+            res.status(401).json({
+                status: 401,
+                message: `Userdata-endpoint: Unauthorized, token is undefined`,
                 data: {}
-            });
+            })
+        } else {
+            logger.debug(`Getting userdata for: ${req.params.userId}`)
+            userArray.forEach(user => {
+                if (user.id == req.params.userId) {
+                    let returnuser = (({ password, ...o }) => o)(user)
+                    //If query trigger is owner of account => returnuser = user; (for password)
+                    res.status(200).json({
+                        status: 200,
+                        message: `Userdata-endpoint: User info for ${req.params.userId}`,
+                        data: returnuser
+                    });
+                    return;
+                }
+            })
+            if (!res.headersSent) {
+                logger.error(`User ${req.params.userId} does not exist`)
+                res.status(404).json({
+                    status: 404,
+                    message: `Userdata-endpoint: Not Found, User with ID #${req.params.userId} not found`,
+                    data: {}
+                });
+            }
         }
     })
     .put((req, res) => {
         //TODO: Check ownership through token 403
-        //TODO: Move usercheck to params.userId
+        //TODO: Check logged in
         const emailAddress = req.query.emailAddress;
         if (emailAddress == undefined) {
             logger.error(`EmailAddress is not provided for updating user`)
@@ -125,44 +124,39 @@ router.route('/:userId')
                 data: {}
             });
         } else {
-            let user = userArray.find(user => user.emailAddress == emailAddress);
+            let user = userArray.find(user => user.id == req.params.userId && user.emailAddress == emailAddress);
             if (user == undefined) {
                 res.status(404).json({
                     status: 404,
-                    message: `Userdata Update-endpoint: Not Found, User with email ${emailAddress} not found`,
+                    message: `Userdata Update-endpoint: Not Found, User with id #${req.params.userId} and email ${emailAddress} not found`,
                     data: {}
                 });
             } else {
-                for (const [key, value] of Object.entries((({ emailAddress, ...o }) => o)(req.query))) {
-                    if (user[key] != undefined) {
-                        logger.debug(`Changing ${key} for ${emailAddress} from ${user[key]} to ${value}`)
-                        if (!user.password.match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/)) {
-                            //Checks if password matches at least 1 number, at least 1 special character and is between 6 and 16 characters
-                            logger.error(`Invalid password: ${user.password}`)
-                            res.status(400).json({
-                                status: 400,
-                                message: "Userdata Update-endpoint: Bad Request, password is not valid (1 number, 1 special character, 6-16 characters)",
-                                data: {}
-                            });
-                        } else if (!user.phoneNumber.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im)) {
-                            logger.error(`Invalid phoneNumber: ${user.phoneNumber}`)
-                            res.status(400).json({
-                                status: 400,
-                                message: "Userdata Update-endpoint: Bad Request, phone number is not valid",
-                                data: {}
-                            });
-                        } else {
-                            user[key] = value;
-                        }
-                    } else {
-                        logger.warn(`Key ${key} is not applicable to User`)
+                if (req.query.phoneNumber != undefined) {
+                    if (!req.query.phoneNumber.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im)) {
+                        logger.error(`Invalid phoneNumber: ${req.query.phoneNumber}`)
+                        res.status(400).json({
+                            status: 400,
+                            message: "Userdata Update-endpoint: Bad Request, phone number is not valid",
+                            data: {}
+                        });
                     }
                 }
-                res.status(200).json({
-                    status: 200,
-                    message: `Userdata Update-endpoint: User with email ${emailAddress} was succesfully updated`,
-                    data: user
-                });
+                if (!res.headersSent) {
+                    for (const [key, value] of Object.entries((({ emailAddress, ...o }) => o)(req.query))) {
+                        if (user[key] != undefined) {
+                            logger.debug(`Changing ${key} for #${req.params.userId} from ${user[key]} to ${value}`)
+                            user[key] = value;
+                        } else {
+                            logger.warn(`Key ${key} is not applicable to User`)
+                        }
+                    }
+                    res.status(200).json({
+                        status: 200,
+                        message: `Userdata Update-endpoint: User with Id #${req.params.userId} was succesfully updated`,
+                        data: user
+                    });
+                }
             }
         }
     })
