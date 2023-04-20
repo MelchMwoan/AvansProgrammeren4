@@ -3,7 +3,7 @@ const router = express.Router()
 const logger = require('tracer').colorConsole();
 
 router.post('/', (req, res) => {
-    res.json({
+    res.status(200).json({
         status: "200",
         message: "Register-endpoint",
         data: {
