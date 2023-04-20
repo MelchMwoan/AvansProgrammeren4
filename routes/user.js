@@ -87,15 +87,18 @@ router.get('/profile', (req, res) => {
 
 router.route('/:userId')
     .get((req, res) => {
-        //TODO: implement check for ownership
+        //TODO: implement check for ownership through authorization
         logger.debug(`Getting userdata for: ${req.params.userId}`)
         userArray.forEach(user => {
             if (user.id == req.params.userId) {
+                let returnuser = (({ password, ...o }) => o)(user)
+                if(req.query.owner == "true") {
+                    returnuser = user;
+                }
                 res.status(200).json({
                     status: 200,
                     message: `Userdata-endpoint, user info for ${req.params.userId}`,
-                    data: (({ password, ...o }) => o)(user)
-                    //If ownership-> data: user
+                    data: returnuser
                 });
                 return;
             }
@@ -110,6 +113,18 @@ router.route('/:userId')
         }
     })
     .put((req, res) => {
+        const firstName = req.query.firstName;
+        const lastName = req.query.lastName;
+        const street = req.query.street;
+        const city = req.query.city;
+        const isActive = req.query.isActive;
+        const emailAddress = req.query.emailAddress;
+        const password = req.query.password;
+        const phoneNumber = req.query.phoneNumber;
+        logger.debug(`Given data: FirstName: ${firstName}, LastName: ${lastName}, Street: ${street}, City: ${city}, Active: ${isActive},Email: ${emailAddress}, Password: ${password}, Phone: ${phoneNumber}`)
+        if(emailAddress == undefined) {
+
+        }
         res.status(200).json({
             status: 200,
             message: "Put User-endpoint",
