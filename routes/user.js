@@ -27,9 +27,9 @@ router.get('/', (req, res) => {
     if (Object.keys(req.query).length != 0) {
         logger.debug(`Filtering on: ${Object.entries(req.query)}`)
         let result = [...userArray];
-        for(const [key, value] of Object.entries(req.query)) {
+        for (const [key, value] of Object.entries(req.query)) {
             result = result.filter(function (user) {
-                return value==user[key]
+                return value == user[key]
             })
         }
         res.status(200).json({
@@ -46,19 +46,40 @@ router.get('/', (req, res) => {
     }
 })
 
-router.get('/profile', (req, res) =>
-    res.status(200).json({
-        status: 200,
-        message: "Profile-endpoint",
-        data: {
-            email: "henk.jan@mail.nl",
-            firstName: "Henk",
-            lastName: "Jan",
-            address: "Lovensdijkstraat 63, Breda",
-            password: "rAnDoMww",
-            userId: "001"
+router.get('/profile', (req, res) => {
+    //TODO: Implement token usage (authorization), right now valid token=1 or 2
+    if (req.query.token == undefined) {
+        res.status(401).json({
+            status: 401,
+            message: `Profile-endpoint: Unauthorized, token is undefined`,
+            data: {}
+        })
+    } else {
+        switch (req.query.token.trim()) {
+            case "1":
+                res.status(200).json({
+                    status: 200,
+                    message: "Profile-endpoint",
+                    data: userArray[0]
+                })
+                break;
+            case "2":
+                res.status(200).json({
+                    status: 200,
+                    message: "Profile-endpoint",
+                    data: userArray[1]
+                })
+                break;
+            default:
+                res.status(401).json({
+                    status: 401,
+                    message: `Profile-endpoint: Unauthorized, Invalid token ${req.query.token}`,
+                    data: {}
+                })
+                break;
         }
-    })
+    }
+}
 );
 
 router.route('/:userId')
