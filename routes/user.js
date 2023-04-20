@@ -9,8 +9,8 @@ const userArray = [{
     city: "Breda",
     isActive: "false",
     emailAddress: "henk.jan@mail.nl",
-    password: "rAnDoMww",
-    phoneNumber: "06 12345678"
+    password: "rAnDoMww1!",
+    phoneNumber: "310612345678"
 }, {
     id: 2,
     firstName: "Man",
@@ -19,8 +19,8 @@ const userArray = [{
     city: "Amstelveen",
     isActive: "true",
     emailAddress: "man.vrouw@mail.nl",
-    password: "NogRaarderWacht",
-    phoneNumber: "06 12345678"
+    password: "NogRaarder1!",
+    phoneNumber: "310612345678"
 }]
 
 router.get('/', (req, res) => {
@@ -88,16 +88,17 @@ router.get('/profile', (req, res) => {
 router.route('/:userId')
     .get((req, res) => {
         //TODO: implement check for ownership through authorization
+        //TODO: check token
         logger.debug(`Getting userdata for: ${req.params.userId}`)
         userArray.forEach(user => {
             if (user.id == req.params.userId) {
                 let returnuser = (({ password, ...o }) => o)(user)
-                if(req.query.owner == "true") {
+                if (req.query.owner == "true") {
                     returnuser = user;
                 }
                 res.status(200).json({
                     status: 200,
-                    message: `Userdata-endpoint, user info for ${req.params.userId}`,
+                    message: `Userdata-endpoint: User info for ${req.params.userId}`,
                     data: returnuser
                 });
                 return;
@@ -107,43 +108,87 @@ router.route('/:userId')
             logger.error(`User ${req.params.userId} does not exist`)
             res.status(404).json({
                 status: 404,
-                message: `Userdata-endpoint, user ${req.params.userId} not found`,
+                message: `Userdata-endpoint: Not Found, User with ID #${req.params.userId} not found`,
                 data: {}
             });
         }
     })
     .put((req, res) => {
-        const firstName = req.query.firstName;
-        const lastName = req.query.lastName;
-        const street = req.query.street;
-        const city = req.query.city;
-        const isActive = req.query.isActive;
+        //TODO: Check ownership through token 403
+        //TODO: Move usercheck to params.userId
         const emailAddress = req.query.emailAddress;
-        const password = req.query.password;
-        const phoneNumber = req.query.phoneNumber;
-        logger.debug(`Given data: FirstName: ${firstName}, LastName: ${lastName}, Street: ${street}, City: ${city}, Active: ${isActive},Email: ${emailAddress}, Password: ${password}, Phone: ${phoneNumber}`)
-        if(emailAddress == undefined) {
-
-        }
-        res.status(200).json({
-            status: 200,
-            message: "Put User-endpoint",
-            data: {
-                email: "henk.jan@mail.nl",
-                firstName: "Henk",
-                lastName: "Jan",
-                address: "Lovensdijkstraat 63, Breda",
-                password: "rAnDoMww",
-                userId: 1
+        if (emailAddress == undefined) {
+            logger.error(`EmailAddress is not provided for updating user`)
+            res.status(400).json({
+                status: 400,
+                message: `Userdata Update-endpoint: Bad Request, email is not provided`,
+                data: {}
+            });
+        } else {
+            let user = userArray.find(user => user.emailAddress == emailAddress);
+            if (user == undefined) {
+                res.status(404).json({
+                    status: 404,
+                    message: `Userdata Update-endpoint: Not Found, User with email ${emailAddress} not found`,
+                    data: {}
+                });
+            } else {
+                for (const [key, value] of Object.entries((({ emailAddress, ...o }) => o)(req.query))) {
+                    if (user[key] != undefined) {
+                        logger.debug(`Changing ${key} for ${emailAddress} from ${user[key]} to ${value}`)
+                        if (!user.password.match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/)) {
+                            //Checks if password matches at least 1 number, at least 1 special character and is between 6 and 16 characters
+                            logger.error(`Invalid password: ${user.password}`)
+                            res.status(400).json({
+                                status: 400,
+                                message: "Userdata Update-endpoint: Bad Request, password is not valid (1 number, 1 special character, 6-16 characters)",
+                                data: {}
+                            });
+                        } else if (!user.phoneNumber.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im)) {
+                            logger.error(`Invalid phoneNumber: ${user.phoneNumber}`)
+                            res.status(400).json({
+                                status: 400,
+                                message: "Userdata Update-endpoint: Bad Request, phone number is not valid",
+                                data: {}
+                            });
+                        } else {
+                            user[key] = value;
+                        }
+                    } else {
+                        logger.warn(`Key ${key} is not applicable to User`)
+                    }
+                }
+                res.status(200).json({
+                    status: 200,
+                    message: `Userdata Update-endpoint: User with email ${emailAddress} was succesfully updated`,
+                    data: user
+                });
             }
-        });
+        }
     })
     .delete((req, res) => {
-        res.status(200).json({
-            status: 200,
-            message: `Delete User-endpoint, User met ID #${req.params.userId} is verwijderd`,
-            data: {}
-        });
+        //TODO: Check logged in
+        //TODO: Check ownership through authorization
+        userArray.forEach(user => {
+            if (user.id == req.params.userId) {
+                userArray.splice(userArray.indexOf(user), 1)
+                logger.debug(`User with ID #${req.params.userId} succesfully deleted`)
+                res.status(200).json({
+                    status: 200,
+                    message: `Userdata Delete-endpoint: User with ID #${req.params.userId} succesfully deleted`,
+                    data: {}
+                });
+                return;
+            }
+        })
+        if (!res.headersSent) {
+            logger.error(`User with ID #${req.params.userId} does not exist`)
+            res.status(404).json({
+                status: 404,
+                message: `Userdata Delete-endpoint: Not Found, User with ID #${req.params.userId} not found`,
+                data: {}
+            });
+        }
     })
 
 module.exports = { router, userArray };
