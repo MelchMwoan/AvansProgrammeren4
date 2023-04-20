@@ -16,7 +16,7 @@ app.use('*', (req, res, next) => {
 const register = require('./routes/register.js');
 app.use('/api/register', register);
 const user = require('./routes/user.js');
-app.use('/api/user', user);
+app.use('/api/user', user.router);
 const info = require('./routes/info.js');
 app.use('/api/info', info);
 
