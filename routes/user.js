@@ -57,6 +57,7 @@ router.get('/profile', (req, res) => {
     } else {
         switch (req.query.token.trim()) {
             case "1":
+                logger.info(`User with token ${req.query.token} called profile info`)
                 res.status(200).json({
                     status: 200,
                     message: "Profile-endpoint",
@@ -64,6 +65,7 @@ router.get('/profile', (req, res) => {
                 })
                 break;
             case "2":
+                logger.info(`User with token ${req.query.token} called profile info`)
                 res.status(200).json({
                     status: 200,
                     message: "Profile-endpoint",
@@ -71,6 +73,7 @@ router.get('/profile', (req, res) => {
                 })
                 break;
             default:
+                logger.error(`Token ${req.query.token} is invalid`)
                 res.status(401).json({
                     status: 401,
                     message: `Profile-endpoint: Unauthorized, Invalid token ${req.query.token}`,
@@ -84,9 +87,10 @@ router.get('/profile', (req, res) => {
 
 router.route('/:userId')
     .get((req, res) => {
-        logger.log(`Getting userdata for ${req.params.userId}`)
+        //TODO: implement check for ownership
+        logger.debug(`Getting userdata for: ${req.params.userId}`)
         userArray.forEach(user => {
-            if (user.userId == req.params.userId) {
+            if (user.id == req.params.userId) {
                 res.status(200).json({
                     status: 200,
                     message: `Userdata-endpoint, user info for ${req.params.userId}`,
@@ -96,6 +100,7 @@ router.route('/:userId')
             }
         })
         if (!res.headersSent) {
+            logger.error(`User ${req.params.userId} does not exist`)
             res.status(404).json({
                 status: 404,
                 message: `Userdata-endpoint, user ${req.params.userId} not found`,

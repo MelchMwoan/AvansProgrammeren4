@@ -20,20 +20,23 @@ router.post('/', (req, res) => {
             data: {}
         });
     } else {
-        if(!emailAddress.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/)) {
+        if (!emailAddress.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/)) {
+            logger.error(`Invalid email: ${emailAddress}`)
             res.status(400).json({
                 status: 400,
                 message: "Register-endpoint: Bad Request, email is not valid",
                 data: {}
             });
-        } else if(!password.match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/)) {
+        } else if (!password.match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/)) {
             //Checks if password matches at least 1 number, at least 1 special character and is between 6 and 16 characters
+            logger.error(`Invalid password: ${password}`)
             res.status(400).json({
                 status: 400,
                 message: "Register-endpoint: Bad Request, password is not valid (1 number, 1 special character, 6-16 characters)",
                 data: {}
             });
-        } else if(!phoneNumber.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im)) {
+        } else if (!phoneNumber.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im)) {
+            logger.error(`Invalid phoneNumber: ${phoneNumber}`)
             res.status(400).json({
                 status: 400,
                 message: "Register-endpoint: Bad Request, phone number is not valid",
@@ -42,6 +45,7 @@ router.post('/', (req, res) => {
         } else {
             user.userArray.forEach(user => {
                 if (user.emailAddress == emailAddress) {
+                    logger.error(`User with email ${emailAddress} already exists`)
                     res.status(403).json({
                         status: 403,
                         message: `Register-endpoint: user with email: '${emailAddress}' already exists`,
@@ -63,6 +67,7 @@ router.post('/', (req, res) => {
                 password: password,
                 phoneNumber: phoneNumber
             });
+            logger.info(`User with id ${user.userArray.length} has been created`)
             res.status(201).json({
                 status: 201,
                 message: "Register-endpoint: Succesfully created a new user",
