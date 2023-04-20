@@ -94,7 +94,8 @@ router.route('/:userId')
                 res.status(200).json({
                     status: 200,
                     message: `Userdata-endpoint, user info for ${req.params.userId}`,
-                    data: user
+                    data: (({ password, ...o }) => o)(user)
+                    //If ownership-> data: user
                 });
                 return;
             }
