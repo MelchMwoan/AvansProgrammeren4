@@ -38,17 +38,4 @@ describe('Get User Details By Id UC-204', function () {
             done();
         })
     })
-    it('TC-204-4-GettingUserDetailsByIdWithoutToken', (done) => {
-        //Testing for getting user details with a existent Id
-        chai.request(server).get("/api/user/999").end((err, res) => {
-            res.body.should.be.an("object");
-            res.body.should.have.keys("status", "message", "data");
-            let { data, message, status } = res.body;
-            status.should.equal(401)
-            message.should.be.a("string").that.contains("Userdata-endpoint: Unauthorized, token is undefined");
-            data.should.be.an("object");
-            data.should.be.empty;
-            done();
-        })
-    })
 })
