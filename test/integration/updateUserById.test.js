@@ -21,7 +21,7 @@ describe('Update User Details By Id UC-205', function () {
     it('TC-205-2-UpdaterIsNotOwnerOfData', (done) => {
         //Testing for updating user details with Id without being owner
         //TODO: Testing for ownership through token
-        chai.request(server).put("/api/user/2?emailAddress=henk.jan@mail.nl").end((err, res) => {
+        chai.request(server).put("/api/user/xxxx").end((err, res) => {
             done();
         })
     })
