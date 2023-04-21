@@ -8,7 +8,7 @@ describe('Get User Details By Id UC-204', function () {
     it('TC-204-1-InvalidToken', (done) => {
         //Testing for getting user details with Id with an invalid token
         //TODO: implement token check
-        chai.request(server).get("/api/user/profile?token=invalidToken").end((err, res) => {
+        chai.request(server).get("/api/user/3?token=invalidToken").end((err, res) => {
             done();
         })
     })
