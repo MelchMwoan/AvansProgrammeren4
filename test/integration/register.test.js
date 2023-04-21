@@ -11,7 +11,7 @@ describe('Register UC-201', function () {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
-            res.body.should.has.property("status").to.be.equal(400);
+            status.should.equal(400)
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -23,7 +23,7 @@ describe('Register UC-201', function () {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
-            res.body.should.has.property("status").to.be.equal(400);
+            status.should.equal(400)
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -35,7 +35,7 @@ describe('Register UC-201', function () {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
-            res.body.should.has.property("status").to.be.equal(400);
+            status.should.equal(400)
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -47,7 +47,7 @@ describe('Register UC-201', function () {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
-            res.body.should.has.property("status").to.be.equal(403);
+            status.should.equal(403)
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -59,7 +59,7 @@ describe('Register UC-201', function () {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
-            res.body.should.has.property("status").to.be.equal(201);
+            status.should.equal(201)
             data.should.be.an("object");
             data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAddress", "password", "phoneNumber");
             let { isActive } = data;

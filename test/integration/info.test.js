@@ -10,7 +10,7 @@ describe('Server-Info', function () {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
-            res.body.should.has.property("status").to.be.equal(200);
+            status.should.equal(200)
             data.should.be.an("object");
             data.should.has.property("studentName").to.be.equal("Melchior Willenborg");
             data.should.has.property("studentNumber").to.be.equal(2205378);
