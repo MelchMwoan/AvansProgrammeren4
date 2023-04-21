@@ -12,6 +12,7 @@ describe('Register UC-201', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(400)
+            message.should.be.a("string").that.contains("Register-endpoint: Bad Request");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -24,6 +25,7 @@ describe('Register UC-201', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(400)
+            message.should.be.a("string").that.contains("Register-endpoint: Bad Request");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -36,6 +38,7 @@ describe('Register UC-201', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(400)
+            message.should.be.a("string").that.contains("Register-endpoint: Bad Request");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -48,6 +51,7 @@ describe('Register UC-201', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(403)
+            message.should.be.a("string").that.contains("Register-endpoint: Forbidden");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -60,6 +64,7 @@ describe('Register UC-201', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(201)
+            message.should.be.a("string").that.contains("Register-endpoint: Created");
             data.should.be.an("object");
             data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAddress", "password", "phoneNumber");
             let { isActive } = data;
