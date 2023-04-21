@@ -59,11 +59,7 @@ router.get('/', (req, res) => {
         let result = [...userArray];
         for (const [key, value] of Object.entries(req.query)) {
             result = result.filter(function (user) {
-                if (user[key] != undefined) {
-                    return value == user[key]
-                } else {
-                    return true;
-                }
+                return value == user[key]
             })
         }
         res.status(200).json({
@@ -156,6 +152,7 @@ router.route('/:userId')
         } else {
             let user = userArray.find(user => user.id == req.params.userId && user.emailAddress == emailAddress);
             if (user == undefined) {
+                logger.error(`User with id #${req.params.userId} and email ${emailAddress} not found`)
                 res.status(404).json({
                     status: 404,
                     message: `Userdata Update-endpoint: Not Found, User with id #${req.params.userId} and email ${emailAddress} not found`,
