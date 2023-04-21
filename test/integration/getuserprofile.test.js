@@ -4,17 +4,17 @@ const server = require('../../app.js');
 chai.should();
 chai.use(chaiHttp);
 
-describe('Register UC-201', function () {
+describe('Get User Profile UC-203', function () {
     it('TC-203-1-InvalidToken', (done) => {
         //Testing for getting profile with an invalid token
         //TODO: implement token check
-        chai.request(server).get("/api/profile?token=invalidToken").end((err, res) => {
+        chai.request(server).get("/api/user/profile?token=invalidToken").end((err, res) => {
             done();
         })
     })
     it('TC-203-2-SuccesfullGettingProfile', (done) => {
         //Testing for register with invalid email
-        chai.request(server).get("/api/profile?token=validToken").end((err, res) => {
+        chai.request(server).get("/api/user/profile?token=validToken").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -27,7 +27,7 @@ describe('Register UC-201', function () {
     })
     it('TC-203-3-GettingProfileWithoutToken', (done) => {
         //Testing for getting profile without an token
-        chai.request(server).get("/api/profile").end((err, res) => {
+        chai.request(server).get("/api/user/profile").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
