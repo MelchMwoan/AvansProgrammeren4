@@ -13,7 +13,7 @@ describe('Get User Profile UC-203', function () {
         })
     })
     it('TC-203-2-SuccesfullGettingProfile', (done) => {
-        //Testing for register with invalid email
+        //Testing for succesfully getting profile
         chai.request(server).get("/api/user/profile?token=validToken").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
