@@ -48,7 +48,7 @@ router.post('/', (req, res) => {
                     logger.error(`User with email ${emailAddress} already exists`)
                     res.status(403).json({
                         status: 403,
-                        message: `Register-endpoint: user with email: '${emailAddress}' already exists`,
+                        message: `Register-endpoint: Forbidden, user with email: '${emailAddress}' already exists`,
                         data: {}
                     });
                     return;
@@ -70,7 +70,7 @@ router.post('/', (req, res) => {
             logger.info(`User with id ${user.userArray.length} has been created`)
             res.status(201).json({
                 status: 201,
-                message: "Register-endpoint: Succesfully created a new user",
+                message: "Register-endpoint: Created, succesfully created a new user",
                 data: user.userArray.at(-1)
             });
         }
