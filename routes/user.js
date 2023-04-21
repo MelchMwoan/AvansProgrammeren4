@@ -150,39 +150,41 @@ router.route('/:userId')
                 data: {}
             });
         } else {
-            let user = userArray.find(user => user.id == req.params.userId && user.emailAddress == emailAddress);
-            if (user == undefined) {
-                logger.error(`User with id #${req.params.userId} and email ${emailAddress} not found`)
-                res.status(404).json({
-                    status: 404,
-                    message: `Userdata Update-endpoint: Not Found, User with id #${req.params.userId} and email ${emailAddress} not found`,
-                    data: {}
-                });
-            } else {
-                if (req.query.phoneNumber != undefined) {
-                    if (!req.query.phoneNumber.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im)) {
-                        logger.error(`Invalid phoneNumber: ${req.query.phoneNumber}`)
-                        res.status(400).json({
-                            status: 400,
-                            message: "Userdata Update-endpoint: Bad Request, phone number is not valid",
-                            data: {}
+            if (req.query.phoneNumber != undefined) {
+                if (!req.query.phoneNumber.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im)) {
+                    logger.error(`Invalid phoneNumber: ${req.query.phoneNumber}`)
+                    res.status(400).json({
+                        status: 400,
+                        message: "Userdata Update-endpoint: Bad Request, phone number is not valid",
+                        data: {}
+                    });
+                }
+            }
+            if (!res.headersSent) {
+                let user = userArray.find(user => user.id == req.params.userId && user.emailAddress == emailAddress);
+                if (user == undefined) {
+                    logger.error(`User with id #${req.params.userId} and email ${emailAddress} not found`)
+                    res.status(404).json({
+                        status: 404,
+                        message: `Userdata Update-endpoint: Not Found, User with id #${req.params.userId} and email ${emailAddress} not found`,
+                        data: {}
+                    });
+                } else {
+                    if (!res.headersSent) {
+                        for (const [key, value] of Object.entries((({ emailAddress, ...o }) => o)(req.query))) {
+                            if (user[key] != undefined) {
+                                logger.debug(`Changing ${key} for #${req.params.userId} from ${user[key]} to ${value}`)
+                                user[key] = value;
+                            } else {
+                                logger.warn(`Key ${key} is not applicable to User`)
+                            }
+                        }
+                        res.status(200).json({
+                            status: 200,
+                            message: `Userdata Update-endpoint: User with Id #${req.params.userId} was succesfully updated`,
+                            data: user
                         });
                     }
-                }
-                if (!res.headersSent) {
-                    for (const [key, value] of Object.entries((({ emailAddress, ...o }) => o)(req.query))) {
-                        if (user[key] != undefined) {
-                            logger.debug(`Changing ${key} for #${req.params.userId} from ${user[key]} to ${value}`)
-                            user[key] = value;
-                        } else {
-                            logger.warn(`Key ${key} is not applicable to User`)
-                        }
-                    }
-                    res.status(200).json({
-                        status: 200,
-                        message: `Userdata Update-endpoint: User with Id #${req.params.userId} was succesfully updated`,
-                        data: user
-                    });
                 }
             }
         }
