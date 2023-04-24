@@ -1,9 +1,10 @@
 {
-  "name": "les1",
+  "name": "shareameal-api",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
+    "dev": "nodemon app.js",
     "test": "mocha -reporter spec test/**/*.test.js --exit"
   },
   "author": "",
