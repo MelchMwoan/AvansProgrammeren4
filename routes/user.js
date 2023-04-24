@@ -89,8 +89,8 @@ router.get('/profile', (req, res) => {
             logger.info(`User with token ${req.query.token} called profile info`)
             res.status(200).json({
                 status: 200,
-                message: "Profile-endpoint",
-                data: userArray[0]
+                message: "Profile-endpoint: This function is not implemented yet",
+                data: {}
             })
         } else {
             //Run on invalid token
