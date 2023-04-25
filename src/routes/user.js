@@ -2,32 +2,55 @@ const express = require('express')
 const router = express.Router()
 const logger = require('tracer').colorConsole();
 const database = require('../utils/inmem-db');
+const mysqldatabase = require('../utils/mysql-db');
 const Joi = require('joi');
 const tokenSchema = Joi.string().token().required();
 const emailSchema = Joi.string().email().required();
 const phoneSchema = Joi.string().pattern(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im).required().messages({ 'string.pattern.base': `{:[.]} is not a valid phone number` });
 
-router.get('/', (req, res) => {
+router.get('/', (req, res, next) => {
+    let sqlStatement = 'Select * FROM `user`';
     if (Object.keys(req.query).length != 0) {
         logger.debug(`Filtering on: ${Object.entries(req.query)}`)
-        let result = [...database];
-        for (const [key, value] of Object.entries(req.query)) {
-            result = result.filter(function (user) {
-                return value == user[key]
-            })
+        for (let [key, value] of Object.entries(req.query)) {
+            if (key != 'isActive') {
+                console.log(key, value)
+                value = `'${value}'`
+            }
+            if (!sqlStatement.includes('WHERE')) {
+                sqlStatement += ` WHERE \`${key}\`= ${value}`
+            } else {
+                sqlStatement += ` AND \`${key}\`= ${value}`
+            }
         }
-        res.status(200).json({
-            status: 200,
-            message: "All Users-endpoint: filtered",
-            data: result
-        });
-    } else {
-        res.status(200).json({
-            status: 200,
-            message: "All Users-endpoint",
-            data: database
-        });
     }
+    logger.debug(sqlStatement)
+    mysqldatabase.getConnection(function (err, conn) {
+        if (err) {
+            logger.error(`MySQL error: ${err}`);
+            next(`MySQL error: ${err.message}`)
+        }
+        if (conn) {
+            conn.query(sqlStatement, function (err, results, fields) {
+                if (err) {
+                    logger.error(err.message);
+                    next({
+                        code: 409,
+                        message: err.message
+                    });
+                }
+                if (results) {
+                    logger.info(`Found ${results.length} results`);
+                    res.status(200).json({
+                        status: 200,
+                        message: "All Users-endpoint",
+                        data: results
+                    });
+                }
+            });
+            mysqldatabase.releaseConnection(conn);
+        }
+    })
 })
 
 router.get('/profile', (req, res) => {
@@ -99,12 +122,12 @@ router.route('/:userId')
     .put((req, res) => {
         //TODO: Check ownership through token 403
         //TODO: Check logged in
-        const result = emailSchema.validate(req.query.emailAddress);
+        const result = emailSchema.validate(req.query.emailAdress);
         if (result.error != undefined) {
-            logger.error(result.error.message.replace("value", "emailAddress"))
+            logger.error(result.error.message.replace("value", "emailAdress"))
             res.status(400).json({
                 status: 400,
-                message: `Userdata Update-endpoint: Bad Request, ${result.error.message.replace("value", "emailAddress")}`,
+                message: `Userdata Update-endpoint: Bad Request, ${result.error.message.replace("value", "emailAdress")}`,
                 data: {}
             });
         } else {
@@ -120,17 +143,17 @@ router.route('/:userId')
                 }
             }
             if (!res.headersSent) {
-                let user = database.find(user => user.id == req.params.userId && user.emailAddress == req.query.emailAddress);
+                let user = database.find(user => user.id == req.params.userId && user.emailAdress == req.query.emailAdress);
                 if (user == undefined) {
-                    logger.error(`User with id #${req.params.userId} and email ${req.query.emailAddress} not found`)
+                    logger.error(`User with id #${req.params.userId} and email ${req.query.emailadress} not found`)
                     res.status(404).json({
                         status: 404,
-                        message: `Userdata Update-endpoint: Not Found, User with id #${req.params.userId} and email ${req.query.emailAddress} not found`,
+                        message: `Userdata Update-endpoint: Not Found, User with id #${req.params.userId} and email ${req.query.emailAdress} not found`,
                         data: {}
                     });
                 } else {
                     if (!res.headersSent) {
-                        for (const [key, value] of Object.entries((({ emailAddress, ...o }) => o)(req.query))) {
+                        for (const [key, value] of Object.entries((({ emailAdress, ...o }) => o)(req.query))) {
                             if (user[key] != undefined) {
                                 logger.debug(`Changing ${key} for #${req.params.userId} from ${user[key]} to ${value}`)
                                 user[key] = value;
