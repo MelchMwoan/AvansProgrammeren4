@@ -112,14 +112,16 @@ router.get('/profile', (req, res) => {
 router.route('/:userId')
     .get((req, res) => {
         //TODO: check token 401
-        if (req.query.token == undefined) {
+        const result = tokenSchema.validate(req.query.token);
+        if (result.error != undefined) {
+            logger.error(result.error.message.replace("value", "token"))
             res.status(401).json({
                 status: 401,
-                message: `Userdata-endpoint: Unauthorized, token is undefined`,
+                message: `Userdata-endpoint: Unauthorized, ${result.error.message.replace("value", "token")}`,
                 data: {}
             })
         } else {
-            logger.debug(`Getting userdata for: ${req.params.userId}`)
+            logger.info(`User with token ${req.query.token} called get userdata for: ${req.params.userId}`)
             userArray.forEach(user => {
                 if (user.id == req.params.userId) {
                     let returnuser = (({ password, ...o }) => o)(user)
