@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const logger = require('tracer').colorConsole();
-const user = require('../routes/user.js');
+const user = require('./user.js');
 
 router.post('/', (req, res) => {
     const firstName = req.query.firstName;
