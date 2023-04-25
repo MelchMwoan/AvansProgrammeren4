@@ -14,7 +14,6 @@ router.get('/', (req, res, next) => {
         logger.debug(`Filtering on: ${Object.entries(req.query)}`)
         for (let [key, value] of Object.entries(req.query)) {
             if (key != 'isActive') {
-                console.log(key, value)
                 value = `'${value}'`
             }
             if (!sqlStatement.includes('WHERE')) {
@@ -136,7 +135,7 @@ router.route('/:userId')
             })
         }
     })
-    .put((req, res) => {
+    .put((req, res, next) => {
         //TODO: Check ownership through token 403
         //TODO: Check logged in
         const result = emailSchema.validate(req.query.emailAdress);
@@ -160,31 +159,72 @@ router.route('/:userId')
                 }
             }
             if (!res.headersSent) {
-                let user = database.find(user => user.id == req.params.userId && user.emailAdress == req.query.emailAdress);
-                if (user == undefined) {
-                    logger.error(`User with id #${req.params.userId} and email ${req.query.emailadress} not found`)
-                    res.status(404).json({
-                        status: 404,
-                        message: `Userdata Update-endpoint: Not Found, User with id #${req.params.userId} and email ${req.query.emailAdress} not found`,
-                        data: {}
-                    });
-                } else {
-                    if (!res.headersSent) {
-                        for (const [key, value] of Object.entries((({ emailAdress, ...o }) => o)(req.query))) {
-                            if (user[key] != undefined) {
-                                logger.debug(`Changing ${key} for #${req.params.userId} from ${user[key]} to ${value}`)
-                                user[key] = value;
-                            } else {
-                                logger.warn(`Key ${key} is not applicable to User`)
-                            }
-                        }
-                        res.status(200).json({
-                            status: 200,
-                            message: `Userdata Update-endpoint: User with Id #${req.params.userId} was succesfully updated`,
-                            data: user
-                        });
+                const userId = req.params.userId;
+                logger.info(`User with token ${req.query.token} called update userdata for: ${req.params.userId}`)
+                let sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.params.userId} AND \`emailAdress\`='${req.query.emailAdress}'`;
+                logger.debug(sqlStatement)
+                mysqldatabase.getConnection(function (err, conn) {
+                    if (err) {
+                        logger.error(`MySQL error: ${err}`);
+                        next(`MySQL error: ${err.message}`)
                     }
-                }
+                    if (conn) {
+                        conn.query(sqlStatement, function (err, results, fields) {
+                            if (err) {
+                                logger.error(err.message);
+                                next({
+                                    code: 409,
+                                    message: err.message
+                                });
+                            } else if (results.length != 0) {
+                                logger.info(`Found user with id #${userId}`);
+                                let user = results[0]
+                                let sqlStatement = `UPDATE \`user\` SET`;
+                                for (let [key, value] of Object.entries((({ emailAdress, ...o }) => o)(req.query))) {
+                                    if (user[key] != undefined) {
+                                        logger.debug(`Changing ${key} for #${userId} from ${user[key]} to ${value}`)
+                                        user[key] = value;
+                                        if (key != 'isActive') {
+                                            value = `'${value}'`
+                                        }
+                                        if (!sqlStatement.endsWith("SET")) {
+                                            sqlStatement += `, \`${key}\` = ${value}`;
+                                        } else {
+                                            sqlStatement += ` \`${key}\` = ${value}`;
+                                        }
+                                    } else {
+                                        logger.warn(`Key ${key} is not applicable to User`)
+                                    }
+                                }
+                                sqlStatement += ` WHERE \`id\`=${req.params.userId} AND \`emailAdress\`='${req.query.emailAdress}'`;
+                                logger.debug(sqlStatement)
+                                conn.query(sqlStatement, function (err, results, fields) {
+                                    if (err) {
+                                        logger.error(err.message);
+                                        next({
+                                            code: 409,
+                                            message: err.message
+                                        });
+                                    } else {
+                                        res.status(200).json({
+                                            status: 200,
+                                            message: `Userdata Update-endpoint: User with Id #${userId} was succesfully updated`,
+                                            data: user
+                                        });
+                                    }
+                                });
+                            } else {
+                                logger.error(`User with id #${userId} and email ${req.query.emailadress} not found`)
+                                res.status(404).json({
+                                    status: 404,
+                                    message: `Userdata Update-endpoint: Not Found, User with id #${userId} and email ${req.query.emailAdress} not found`,
+                                    data: {}
+                                });
+                            }
+                        });
+                        mysqldatabase.releaseConnection(conn);
+                    }
+                })
             }
         }
     })
