@@ -1,57 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const logger = require('tracer').colorConsole();
-const userArray = [{
-    id: 1,
-    firstName: "Henk",
-    lastName: "Jan",
-    street: "Lovensdijkstraat",
-    city: "Breda",
-    isActive: "false",
-    emailAddress: "henk.jan@mail.nl",
-    password: "rAnDoMww1!",
-    phoneNumber: "310612345678"
-}, {
-    id: 2,
-    firstName: "Man",
-    lastName: "Vrouw",
-    street: "RandomWeg",
-    city: "Amstelveen",
-    isActive: "true",
-    emailAddress: "man.vrouw@mail.nl",
-    password: "NogRaarder1!",
-    phoneNumber: "310612345678"
-}, {
-    id: 3,
-    firstName: "Henk",
-    lastName: "van der Veen",
-    street: "Hogeschoollaan",
-    city: "Breda",
-    isActive: "true",
-    emailAddress: "hvdveen@mail.nl",
-    password: "hvdVeen1!",
-    phoneNumber: "310612345678"
-}, {
-    id: 4,
-    firstName: "Marie",
-    lastName: "van der Veen",
-    street: "Hogeschoollaan",
-    city: "Breda",
-    isActive: "false",
-    emailAddress: "mvdveen@mail.nl",
-    password: "mvdVeen1!",
-    phoneNumber: "310612345678"
-}, {
-    id: 5,
-    firstName: "Leo",
-    lastName: "Hogerhede",
-    street: "Universiteitslaan",
-    city: "Tilburg",
-    isActive: "true",
-    emailAddress: "lhoger@tilburguni.nl",
-    password: "Uni1Til!",
-    phoneNumber: "310612345678"
-}]
+const database = require('../utils/inmem-db');
 const Joi = require('joi');
 const tokenSchema = Joi.string().token().required();
 const emailSchema = Joi.string().email().required();
@@ -60,7 +10,7 @@ const phoneSchema = Joi.string().pattern(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}
 router.get('/', (req, res) => {
     if (Object.keys(req.query).length != 0) {
         logger.debug(`Filtering on: ${Object.entries(req.query)}`)
-        let result = [...userArray];
+        let result = [...database];
         for (const [key, value] of Object.entries(req.query)) {
             result = result.filter(function (user) {
                 return value == user[key]
@@ -75,7 +25,7 @@ router.get('/', (req, res) => {
         res.status(200).json({
             status: 200,
             message: "All Users-endpoint",
-            data: userArray
+            data: database
         });
     }
 })
@@ -124,7 +74,7 @@ router.route('/:userId')
             })
         } else {
             logger.info(`User with token ${req.query.token} called get userdata for: ${req.params.userId}`)
-            userArray.forEach(user => {
+            database.forEach(user => {
                 if (user.id == req.params.userId) {
                     let returnuser = (({ password, ...o }) => o)(user)
                     //If query trigger is owner of account => returnuser = user; (for password)
@@ -170,7 +120,7 @@ router.route('/:userId')
                 }
             }
             if (!res.headersSent) {
-                let user = userArray.find(user => user.id == req.params.userId && user.emailAddress == req.query.emailAddress);
+                let user = database.find(user => user.id == req.params.userId && user.emailAddress == req.query.emailAddress);
                 if (user == undefined) {
                     logger.error(`User with id #${req.params.userId} and email ${req.query.emailAddress} not found`)
                     res.status(404).json({
@@ -201,9 +151,9 @@ router.route('/:userId')
     .delete((req, res) => {
         //TODO: Check logged in
         //TODO: Check ownership through authorization
-        userArray.forEach(user => {
+        database.forEach(user => {
             if (user.id == req.params.userId) {
-                userArray.splice(userArray.indexOf(user), 1)
+                database.splice(database.indexOf(user), 1)
                 logger.debug(`User with ID #${req.params.userId} succesfully deleted`)
                 res.status(200).json({
                     status: 200,
@@ -223,4 +173,4 @@ router.route('/:userId')
         }
     })
 
-module.exports = { router, userArray };
+module.exports = router;
