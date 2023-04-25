@@ -12,7 +12,7 @@ describe('Register UC-201', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(400)
-            message.should.be.a("string").that.contains("Register-endpoint: Bad Request, please provide all required properties");
+            message.should.be.a("string").that.contains("Register-endpoint: Bad Request, \"phoneNumber\" is required");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -25,7 +25,7 @@ describe('Register UC-201', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(400)
-            message.should.be.a("string").that.contains("Register-endpoint: Bad Request, email is not valid");
+            message.should.be.a("string").that.contains("Register-endpoint: Bad Request, \"emailAddress\" must be a valid email");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -38,7 +38,7 @@ describe('Register UC-201', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(400)
-            message.should.be.a("string").that.contains("Register-endpoint: Bad Request, password is not valid (1 number, 1 special character, 6-16 characters)");
+            message.should.be.a("string").that.contains("Register-endpoint: Bad Request, \"invalid\" is not a valid password (at least 1 number and 1 special character, 6-16 characters)");
             data.should.be.an("object");
             data.should.be.empty;
             done();
