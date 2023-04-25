@@ -1,8 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const logger = require('tracer').colorConsole();
-const user = require('./user.js');
 const Joi = require('joi');
+const database = require('../utils/inmem-db.js');
 const schema = Joi.object({
     firstName: Joi.string().min(3).max(30).required(),
     lastName: Joi.string().min(3).max(30).required(),
@@ -25,7 +25,7 @@ router.post('/', (req, res) => {
             data: {}
         });
     } else {
-        user.userArray.forEach(user => {
+        database.forEach(user => {
             if (user.emailAddress == req.query.emailAddress) {
                 logger.error(`User with email ${req.query.emailAddress} already exists`)
                 res.status(403).json({
@@ -37,8 +37,8 @@ router.post('/', (req, res) => {
             }
         })
         if (!res.headersSent) {
-            user.userArray.push({
-                id: user.userArray.length + 1,
+            database.push({
+                id: database.length + 1,
                 firstName: req.query.firstName,
                 lastName: req.query.lastName,
                 street: req.query.street,
@@ -48,11 +48,11 @@ router.post('/', (req, res) => {
                 password: req.query.password,
                 phoneNumber: req.query.phoneNumber
             });
-            logger.info(`User with id ${user.userArray.length} has been created`)
+            logger.info(`User with id ${database.length} has been created`)
             res.status(201).json({
                 status: 201,
                 message: "Register-endpoint: Created, succesfully created a new user",
-                data: user.userArray.at(-1)
+                data: database.at(-1)
             });
         }
     }
