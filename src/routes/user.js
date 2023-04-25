@@ -55,6 +55,7 @@ router.get('/', (req, res, next) => {
 
 router.get('/profile', (req, res) => {
     //TODO: Implement token usage (authorization)
+    //TODO: Use mysql
     const result = tokenSchema.validate(req.query.token);
     if (result.error != undefined) {
         logger.error(result.error.message.replace("value", "token"))
@@ -85,7 +86,7 @@ router.get('/profile', (req, res) => {
 );
 
 router.route('/:userId')
-    .get((req, res) => {
+    .get((req, res, next) => {
         //TODO: check token 401
         const result = tokenSchema.validate(req.query.token);
         if (result.error != undefined) {
@@ -97,26 +98,42 @@ router.route('/:userId')
             })
         } else {
             logger.info(`User with token ${req.query.token} called get userdata for: ${req.params.userId}`)
-            database.forEach(user => {
-                if (user.id == req.params.userId) {
-                    let returnuser = (({ password, ...o }) => o)(user)
-                    //If query trigger is owner of account => returnuser = user; (for password)
-                    res.status(200).json({
-                        status: 200,
-                        message: `Userdata-endpoint: User info for #${req.params.userId}`,
-                        data: returnuser
+            let sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.params.userId}`;
+            logger.debug(sqlStatement)
+            mysqldatabase.getConnection(function (err, conn) {
+                if (err) {
+                    logger.error(`MySQL error: ${err}`);
+                    next(`MySQL error: ${err.message}`)
+                }
+                if (conn) {
+                    conn.query(sqlStatement, function (err, results, fields) {
+                        if (err) {
+                            logger.error(err.message);
+                            next({
+                                code: 409,
+                                message: err.message
+                            });
+                        } else if (results.length != 0) {
+                            logger.info(`Found user with id #${req.params.userId}`);
+                            let returnuser = (({ password, ...o }) => o)(results[0])
+                            //If query trigger is owner of account => returnuser = user; (for password)
+                            res.status(200).json({
+                                status: 200,
+                                message: "All Users-endpoint",
+                                data: returnuser
+                            });
+                        } else {
+                            logger.error(`User with id #${req.params.userId} does not exist`)
+                            res.status(404).json({
+                                status: 404,
+                                message: `Userdata-endpoint: Not Found, User with ID #${req.params.userId} not found`,
+                                data: {}
+                            });
+                        }
                     });
-                    return;
+                    mysqldatabase.releaseConnection(conn);
                 }
             })
-            if (!res.headersSent) {
-                logger.error(`User ${req.params.userId} does not exist`)
-                res.status(404).json({
-                    status: 404,
-                    message: `Userdata-endpoint: Not Found, User with ID #${req.params.userId} not found`,
-                    data: {}
-                });
-            }
         }
     })
     .put((req, res) => {
