@@ -52,6 +52,10 @@ const userArray = [{
     password: "Uni1Til!",
     phoneNumber: "310612345678"
 }]
+const Joi = require('joi');
+const tokenSchema = Joi.string().token().required();
+const emailSchema = Joi.string().email().required();
+const phoneSchema = Joi.string().pattern(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im).required().messages({ 'string.pattern.base': `{:[.]} is not a valid phone number` });
 
 router.get('/', (req, res) => {
     if (Object.keys(req.query).length != 0) {
@@ -78,10 +82,12 @@ router.get('/', (req, res) => {
 
 router.get('/profile', (req, res) => {
     //TODO: Implement token usage (authorization)
-    if (req.query.token == undefined) {
+    const result = tokenSchema.validate(req.query.token);
+    if (result.error != undefined) {
+        logger.error(result.error.message.replace("value", "token"))
         res.status(401).json({
             status: 401,
-            message: `Profile-endpoint: Unauthorized, token is undefined`,
+            message: `Profile-endpoint: Unauthorized, ${result.error.message.replace("value", "token")}`,
             data: {}
         })
     } else {
@@ -108,14 +114,16 @@ router.get('/profile', (req, res) => {
 router.route('/:userId')
     .get((req, res) => {
         //TODO: check token 401
-        if (req.query.token == undefined) {
+        const result = tokenSchema.validate(req.query.token);
+        if (result.error != undefined) {
+            logger.error(result.error.message.replace("value", "token"))
             res.status(401).json({
                 status: 401,
-                message: `Userdata-endpoint: Unauthorized, token is undefined`,
+                message: `Userdata-endpoint: Unauthorized, ${result.error.message.replace("value", "token")}`,
                 data: {}
             })
         } else {
-            logger.debug(`Getting userdata for: ${req.params.userId}`)
+            logger.info(`User with token ${req.query.token} called get userdata for: ${req.params.userId}`)
             userArray.forEach(user => {
                 if (user.id == req.params.userId) {
                     let returnuser = (({ password, ...o }) => o)(user)
@@ -141,27 +149,28 @@ router.route('/:userId')
     .put((req, res) => {
         //TODO: Check ownership through token 403
         //TODO: Check logged in
-        const emailAddress = req.query.emailAddress;
-        if (emailAddress == undefined) {
-            logger.error(`EmailAddress is not provided for updating user`)
+        const result = emailSchema.validate(req.query.emailAddress);
+        if (result.error != undefined) {
+            logger.error(result.error.message.replace("value", "emailAddress"))
             res.status(400).json({
                 status: 400,
-                message: `Userdata Update-endpoint: Bad Request, email is not provided`,
+                message: `Userdata Update-endpoint: Bad Request, ${result.error.message.replace("value", "emailAddress")}`,
                 data: {}
             });
         } else {
             if (req.query.phoneNumber != undefined) {
-                if (!req.query.phoneNumber.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im)) {
-                    logger.error(`Invalid phoneNumber: ${req.query.phoneNumber}`)
+                const result = phoneSchema.validate(req.query.phoneNumber);
+                if (result.error != undefined) {
+                    logger.error(result.error.message.replace("value", "phoneNumber"))
                     res.status(400).json({
                         status: 400,
-                        message: "Userdata Update-endpoint: Bad Request, phone number is not valid",
+                        message: `Userdata Update-endpoint: Bad Request, ${result.error.message.replace("value", "phoneNumber")}`,
                         data: {}
                     });
                 }
             }
             if (!res.headersSent) {
-                let user = userArray.find(user => user.id == req.params.userId && user.emailAddress == emailAddress);
+                let user = userArray.find(user => user.id == req.params.userId && user.emailAddress == req.query.emailAddress);
                 if (user == undefined) {
                     logger.error(`User with id #${req.params.userId} and email ${emailAddress} not found`)
                     res.status(404).json({
