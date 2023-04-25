@@ -12,7 +12,7 @@ describe('Update User Details By Id UC-205', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(400)
-            message.should.be.a("string").that.contains("Userdata Update-endpoint: Bad Request, email is not provided");
+            message.should.be.a("string").that.contains("Userdata Update-endpoint: Bad Request, \"emailAddress\" is required");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -32,7 +32,7 @@ describe('Update User Details By Id UC-205', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(400)
-            message.should.be.a("string").that.contains("Userdata Update-endpoint: Bad Request, phone number is not valid");
+            message.should.be.a("string").that.contains("Userdata Update-endpoint: Bad Request, \"310619410\" is not a valid phone number");
             data.should.be.an("object");
             data.should.be.empty;
             done();

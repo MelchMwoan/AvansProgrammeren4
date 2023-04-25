@@ -33,7 +33,7 @@ describe('Get User Profile UC-203', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(401)
-            message.should.be.a("string").that.contains("Profile-endpoint: Unauthorized, token is undefined");
+            message.should.be.a("string").that.contains("Profile-endpoint: Unauthorized, \"token\" is required");
             data.should.be.an("object");
             data.should.be.empty;
             done();
