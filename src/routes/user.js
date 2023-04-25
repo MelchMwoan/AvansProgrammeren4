@@ -172,10 +172,10 @@ router.route('/:userId')
             if (!res.headersSent) {
                 let user = userArray.find(user => user.id == req.params.userId && user.emailAddress == req.query.emailAddress);
                 if (user == undefined) {
-                    logger.error(`User with id #${req.params.userId} and email ${emailAddress} not found`)
+                    logger.error(`User with id #${req.params.userId} and email ${req.query.emailAddress} not found`)
                     res.status(404).json({
                         status: 404,
-                        message: `Userdata Update-endpoint: Not Found, User with id #${req.params.userId} and email ${emailAddress} not found`,
+                        message: `Userdata Update-endpoint: Not Found, User with id #${req.params.userId} and email ${req.query.emailAddress} not found`,
                         data: {}
                     });
                 } else {
