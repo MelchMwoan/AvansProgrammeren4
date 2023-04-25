@@ -118,7 +118,7 @@ router.route('/:userId')
                             //If query trigger is owner of account => returnuser = user; (for password)
                             res.status(200).json({
                                 status: 200,
-                                message: "All Users-endpoint",
+                                message: "Userdata-endpoint",
                                 data: returnuser
                             });
                         } else {
@@ -228,28 +228,53 @@ router.route('/:userId')
             }
         }
     })
-    .delete((req, res) => {
+    .delete((req, res, next) => {
         //TODO: Check logged in
         //TODO: Check ownership through authorization
-        database.forEach(user => {
-            if (user.id == req.params.userId) {
-                database.splice(database.indexOf(user), 1)
-                logger.debug(`User with ID #${req.params.userId} succesfully deleted`)
-                res.status(200).json({
-                    status: 200,
-                    message: `Userdata Delete-endpoint: User with ID #${req.params.userId} succesfully deleted`,
-                    data: {}
-                });
-                return;
-            }
-        })
-        if (!res.headersSent) {
-            logger.error(`User with ID #${req.params.userId} does not exist`)
-            res.status(404).json({
-                status: 404,
-                message: `Userdata Delete-endpoint: Not Found, User with ID #${req.params.userId} not found`,
+        const result = tokenSchema.validate(req.query.token);
+        if (result.error != undefined) {
+            logger.error(result.error.message.replace("value", "token"))
+            res.status(401).json({
+                status: 401,
+                message: `Userdata Delete-endpoint: Unauthorized, ${result.error.message.replace("value", "token")}`,
                 data: {}
-            });
+            })
+        } else {
+            logger.info(`User with token ${req.query.token} called delete userdata for: ${req.params.userId}`)
+            let sqlStatement = `DELETE FROM \`user\` WHERE \`id\`=${req.params.userId}`;
+            logger.debug(sqlStatement)
+            mysqldatabase.getConnection(function (err, conn) {
+                if (err) {
+                    logger.error(`MySQL error: ${err}`);
+                    next(`MySQL error: ${err.message}`)
+                }
+                if (conn) {
+                    conn.query(sqlStatement, function (err, results, fields) {
+                        if (err) {
+                            logger.error(err.message);
+                            next({
+                                code: 409,
+                                message: err.message
+                            });
+                        } else if (results.affectedRows > 0) {
+                            logger.info(`User with ID #${req.params.userId} succesfully deleted`)
+                            res.status(200).json({
+                                status: 200,
+                                message: `Userdata Delete-endpoint: User with ID #${req.params.userId} succesfully deleted`,
+                                data: {}
+                            });
+                        } else {
+                            logger.error(`User with id #${req.params.userId} does not exist`)
+                            res.status(404).json({
+                                status: 404,
+                                message: `Userdata Delete-endpoint: Not Found, User with ID #${req.params.userId} not found`,
+                                data: {}
+                            });
+                        }
+                    });
+                    mysqldatabase.releaseConnection(conn);
+                }
+            })
         }
     })
 
