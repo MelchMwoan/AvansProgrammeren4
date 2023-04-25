@@ -13,11 +13,11 @@ app.use('*', (req, res, next) => {
     next()
 })
 
-const register = require('./routes/register.js');
+const register = require('./src/routes/register.js');
 app.use('/api/register', register);
-const user = require('./routes/user.js');
+const user = require('./src/routes/user.js');
 app.use('/api/user', user.router);
-const info = require('./routes/info.js');
+const info = require('./src/routes/info.js');
 app.use('/api/info', info);
 
 app.use('*',(req, res) => {
