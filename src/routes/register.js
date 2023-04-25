@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const logger = require('tracer').colorConsole();
 const user = require('./user.js');
-
+//TODO: joi input validation
 router.post('/', (req, res) => {
     const firstName = req.query.firstName;
     const lastName = req.query.lastName;
