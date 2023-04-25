@@ -52,6 +52,8 @@ const userArray = [{
     password: "Uni1Til!",
     phoneNumber: "310612345678"
 }]
+const Joi = require('joi');
+const tokenSchema = Joi.string().token().required();
 
 router.get('/', (req, res) => {
     if (Object.keys(req.query).length != 0) {
@@ -78,10 +80,12 @@ router.get('/', (req, res) => {
 
 router.get('/profile', (req, res) => {
     //TODO: Implement token usage (authorization)
-    if (req.query.token == undefined) {
+    const result = tokenSchema.validate(req.query.token);
+    if (result.error != undefined) {
+        logger.error(result.error.message.replace("value", "token"))
         res.status(401).json({
             status: 401,
-            message: `Profile-endpoint: Unauthorized, token is undefined`,
+            message: `Profile-endpoint: Unauthorized, ${result.error.message.replace("value", "token")}`,
             data: {}
         })
     } else {
