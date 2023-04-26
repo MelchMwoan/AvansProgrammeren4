@@ -1,3 +1,7 @@
 {
-    "port": 3000
+    "apiport": 3000,
+    "mysql_host": "localhost",
+    "mysql_user": "root",
+    "mysql_database": "shareameal",
+    "mysql_port": 3306
 }

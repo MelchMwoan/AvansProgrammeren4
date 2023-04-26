@@ -1,7 +1,9 @@
+const dotenv = require('dotenv');
+dotenv.config()
 const express = require('express')
 const config = require('./config.json');
 const app = express()
-const port = config.port;
+const port = process.env.API_PORT || config.port;
 const logger = require('tracer').colorConsole();
 
 app.listen(port, () => {
@@ -20,7 +22,7 @@ app.use('/api/user', user);
 const info = require('./src/routes/info.js');
 app.use('/api/info', info);
 
-app.use('*',(req, res) => {
+app.use('*', (req, res) => {
     logger.error(`${req.method} request on ${req.originalUrl} was not found`)
     res.status(404).json({
         status: 404,
@@ -32,9 +34,9 @@ app.use('*',(req, res) => {
 app.use((err, req, res, next) => {
     logger.error(err.code, err.message);
     res.status(err.code).json({
-      statusCode: err.code,
-      message: err.message,
-      data: {}
+        statusCode: err.code,
+        message: err.message,
+        data: {}
     });
-  });
+});
 module.exports = app;
