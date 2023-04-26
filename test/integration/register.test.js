@@ -7,7 +7,7 @@ chai.use(chaiHttp);
 describe('Register UC-201', function () {
     it('TC-201-1-InputMissing', (done) => {
         //Testing for register with missing phoneNumber
-        chai.request(server).post("/api/register?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAddress=test@test.nl&password=test1!").end((err, res) => {
+        chai.request(server).post("/api/register?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAdress=test@test.nl&password=test1!").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -20,12 +20,12 @@ describe('Register UC-201', function () {
     })
     it('TC-201-2-InvalidEmail', (done) => {
         //Testing for register with invalid email
-        chai.request(server).post("/api/register?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAddress=invalid&password=test1!&phoneNumber=31636363655").end((err, res) => {
+        chai.request(server).post("/api/register?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAdress=invalid&password=test1!&phoneNumber=31636363655").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(400)
-            message.should.be.a("string").that.contains("Register-endpoint: Bad Request, \"emailAddress\" must be a valid email");
+            message.should.be.a("string").that.contains("Register-endpoint: Bad Request, \"emailAdress\" must be a valid email");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -33,7 +33,7 @@ describe('Register UC-201', function () {
     })
     it('TC-201-3-InvalidPassword', (done) => {
         //Testing for register with invalid password
-        chai.request(server).post("/api/register?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAddress=test@test.nl&password=invalid&phoneNumber=31636363655").end((err, res) => {
+        chai.request(server).post("/api/register?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAdress=test@test.nl&password=invalid&phoneNumber=31636363655").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -46,12 +46,12 @@ describe('Register UC-201', function () {
     })
     it('TC-201-4-UserAlreadyExists', (done) => {
         //Testing for already existing user (email=henk.jan@mail.nl)
-        chai.request(server).post("/api/register?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAddress=henk.jan@mail.nl&password=test1!&phoneNumber=31636363655").end((err, res) => {
+        chai.request(server).post("/api/register?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAdress=j.doe@server.com&password=test1!&phoneNumber=31636363655").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(403)
-            message.should.be.a("string").that.contains("Register-endpoint: Forbidden, user with email: 'henk.jan@mail.nl' already exists");
+            message.should.be.a("string").that.contains("Register-endpoint: Forbidden, user with email: 'j.doe@server.com' already exists");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -59,16 +59,17 @@ describe('Register UC-201', function () {
     })
     it('TC-201-5-SuccesfullRegistration', (done) => {
         //Testing for succesfull registration
-        chai.request(server).post("/api/register?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAddress=test@test.nl&password=test1!&phoneNumber=31636363655").end((err, res) => {
+        chai.request(server).post("/api/register?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAdress=test@test.nl&password=test1!&phoneNumber=31636363655").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(201)
             message.should.be.a("string").that.contains("Register-endpoint: Created, succesfully created a new user");
             data.should.be.an("object");
-            data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAddress", "password", "phoneNumber");
-            let { isActive } = data;
-            chai.expect(["true", "false"]).to.include(isActive);
+            data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAdress", "password", "phoneNumber", "roles");
+            let { isActive, id } = data;
+            chai.expect([1,0]).to.include(isActive);
+            chai.request(server).delete(`/api/user/${id}?token=randomtoken`).end()
             done();
         })
     })

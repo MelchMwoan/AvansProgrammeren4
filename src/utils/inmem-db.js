@@ -5,7 +5,7 @@ const database = [{
     street: "Lovensdijkstraat",
     city: "Breda",
     isActive: "false",
-    emailAddress: "henk.jan@mail.nl",
+    emailAdress: "henk.jan@mail.nl",
     password: "rAnDoMww1!",
     phoneNumber: "310612345678"
 }, {
@@ -15,7 +15,7 @@ const database = [{
     street: "RandomWeg",
     city: "Amstelveen",
     isActive: "true",
-    emailAddress: "man.vrouw@mail.nl",
+    emailAdress: "man.vrouw@mail.nl",
     password: "NogRaarder1!",
     phoneNumber: "310612345678"
 }, {
@@ -25,7 +25,7 @@ const database = [{
     street: "Hogeschoollaan",
     city: "Breda",
     isActive: "true",
-    emailAddress: "hvdveen@mail.nl",
+    emailAdress: "hvdveen@mail.nl",
     password: "hvdVeen1!",
     phoneNumber: "310612345678"
 }, {
@@ -35,7 +35,7 @@ const database = [{
     street: "Hogeschoollaan",
     city: "Breda",
     isActive: "false",
-    emailAddress: "mvdveen@mail.nl",
+    emailAdress: "mvdveen@mail.nl",
     password: "mvdVeen1!",
     phoneNumber: "310612345678"
 }, {
@@ -45,7 +45,7 @@ const database = [{
     street: "Universiteitslaan",
     city: "Tilburg",
     isActive: "true",
-    emailAddress: "lhoger@tilburguni.nl",
+    emailAdress: "lhoger@tilburguni.nl",
     password: "Uni1Til!",
     phoneNumber: "310612345678"
 }]
