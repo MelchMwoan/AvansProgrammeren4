@@ -119,7 +119,7 @@ router.route('/:userId')
                             //If query trigger is owner of account => returnuser = user; (for password)
                             res.status(200).json({
                                 status: 200,
-                                message: "Userdata-endpoint",
+                                message: `Userdata-endpoint: User info for #${returnuser.id}`,
                                 data: returnuser
                             });
                         } else {
