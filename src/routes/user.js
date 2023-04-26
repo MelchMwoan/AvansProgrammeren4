@@ -34,8 +34,9 @@ router.get('/', (req, res, next) => {
                 if (err) {
                     logger.error(err.message);
                     next({
-                        code: 409,
-                        message: err.message
+                        code: 200,
+                        message: err.message,
+                        data: []
                     });
                 }
                 if (results) {
