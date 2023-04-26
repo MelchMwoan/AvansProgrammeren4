@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MYSQL_ROOT_PASSWORD: root # default root password to use must be 'root'
-      DB_HOST: localhost
-      DB_PORT: 3306
-      DB_DATABASE: shareameal
-      DB_USER: root
-      DB_PASSWORD: root
+      MYSQL_HOST: localhost
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: shareameal
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
     services:
       mysql:
         image: mysql:5.7
@@ -33,11 +33,11 @@ jobs:
           sudo /etc/init.d/mysql start
           sudo apt-get install -y mysql-client
           mysql -uroot -p${{ env.MYSQL_ROOT_PASSWORD }} -e "SHOW DATABASES;"
-          mysql -uroot -p${{ env.MYSQL_ROOT_PASSWORD }} -e "CREATE DATABASE ${{env.DB_DATABASE}};"
+          mysql -uroot -p${{ env.MYSQL_ROOT_PASSWORD }} -e "CREATE DATABASE ${{env.MYSQL_DATABASE}};"
       - name: Import database script
         run: |
-          mysql -uroot -p${{env.MYSQL_ROOT_PASSWORD}} ${{env.DB_DATABASE}} < share-a-meal.sql
-          mysql -uroot -p${{env.MYSQL_ROOT_PASSWORD}} ${{env.DB_DATABASE}} -e "SHOW TABLES;"
+          mysql -uroot -p${{env.MYSQL_ROOT_PASSWORD}} ${{env.MYSQL_DATABASE}} < share-a-meal.sql
+          mysql -uroot -p${{env.MYSQL_ROOT_PASSWORD}} ${{env.MYSQL_DATABASE}} -e "SHOW TABLES;"
       - run: npm ci
       - run: npm test
   
