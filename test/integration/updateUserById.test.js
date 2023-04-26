@@ -60,14 +60,15 @@ describe('Update User Details By Id UC-205', function () {
     })
     it('TC-205-6-SuccesfullyUpdatedUser', (done) => {
         //Testing for updating user details with Id that does not exists
-        chai.request(server).put("/api/user/1?emailAdress=henk.jan@mail.nl&city=Utrecht&lastName=Kees").end((err, res) => {
+        chai.request(server).put("/api/user/1?emailAdress=m.vandullemen@server.nl&city=Utrecht&lastName=Kees").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(200)
             message.should.be.a("string").that.contains("Userdata Update-endpoint: User with Id #1 was succesfully updated");
-            data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAdress", "password", "phoneNumber");
+            data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAdress", "password", "phoneNumber", "roles");
             data.should.include({city:"Utrecht", lastName:"Kees"})
+            chai.request(server).put("/api/user/1?emailAdress=m.vandullemen@server.nl&city=Breda&lastName=van den Dullemen").end()
             done();
         })
     })
