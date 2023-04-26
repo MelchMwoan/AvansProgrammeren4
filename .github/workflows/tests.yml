@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment:
+    env:
       - MYSQL_ROOT_PASSWORD=strongrootpassword # default root password to use must be 'root'
       DB_HOST: localhost
       DB_PORT: 3306
