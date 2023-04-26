@@ -34,7 +34,7 @@ describe('Get User Details By Id UC-204', function () {
             status.should.equal(200)
             message.should.be.a("string").that.contains("Userdata-endpoint: User info for #3");
             data.should.be.an("object");
-            data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAdress", "phoneNumber");
+            data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAdress", "phoneNumber", "roles");
             done();
         })
     })

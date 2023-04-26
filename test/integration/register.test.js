@@ -46,12 +46,12 @@ describe('Register UC-201', function () {
     })
     it('TC-201-4-UserAlreadyExists', (done) => {
         //Testing for already existing user (email=henk.jan@mail.nl)
-        chai.request(server).post("/api/register?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAdress=henk.jan@mail.nl&password=test1!&phoneNumber=31636363655").end((err, res) => {
+        chai.request(server).post("/api/register?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAdress=j.doe@server.com&password=test1!&phoneNumber=31636363655").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(403)
-            message.should.be.a("string").that.contains("Register-endpoint: Forbidden, user with email: 'henk.jan@mail.nl' already exists");
+            message.should.be.a("string").that.contains("Register-endpoint: Forbidden, user with email: 'j.doe@server.com' already exists");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -66,9 +66,10 @@ describe('Register UC-201', function () {
             status.should.equal(201)
             message.should.be.a("string").that.contains("Register-endpoint: Created, succesfully created a new user");
             data.should.be.an("object");
-            data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAdress", "password", "phoneNumber");
-            let { isActive } = data;
-            chai.expect(["true", "false"]).to.include(isActive);
+            data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAdress", "password", "phoneNumber", "roles");
+            let { isActive, id } = data;
+            chai.expect([1,0]).to.include(isActive);
+            chai.request(server).delete(`/api/user/${id}?token=randomtoken`).end()
             done();
         })
     })

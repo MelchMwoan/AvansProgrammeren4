@@ -1,10 +1,13 @@
 const dotenv = require('dotenv');
-dotenv.config()
+const logger = require('tracer').colorConsole();
+if(dotenv.config().error) {
+    logger.error(`Failed to load dotenv`)
+
+}
 const express = require('express')
 const config = require('./config.json');
 const app = express()
-const port = process.env.API_PORT || config.port;
-const logger = require('tracer').colorConsole();
+const port = process.env.API_PORT || config.apiport;
 
 app.listen(port, () => {
     logger.debug(`Example app listening on port ${port}`)
@@ -34,9 +37,9 @@ app.use('*', (req, res) => {
 app.use((err, req, res, next) => {
     logger.error(err.code, err.message);
     res.status(err.code).json({
-        statusCode: err.code,
+        status: err.code,
         message: err.message,
-        data: {}
+        data: (err.data == undefined ? {} : err.data)
     });
 });
 module.exports = app;
