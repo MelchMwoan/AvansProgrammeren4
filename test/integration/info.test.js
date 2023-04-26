@@ -3,6 +3,7 @@ const chaiHttp = require('chai-http');
 const server = require('../../app.js');
 chai.should();
 chai.use(chaiHttp);
+const dbconnection = require('../../src/utils/mysql-db.js');
 
 describe('Server-Info', function () {
     it('TC-102-1-ServerInfo', (done) => {
