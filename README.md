@@ -19,14 +19,24 @@ To install this API and run it on your own device complete the following steps f
 2. Once downloaded, unpack the .zip in a folder of choice.
 3. Open the new folder and right click anywhere in the folder. You'll see a menu which includes the option open in Terminal, click on this option. A new Terminal will open with the right directory.
 4. Run `npm install`, this will install all the required packages automatically.
-5. Configure your settings:
+5. Configure your settings if you want to:
+    - Create a .env file in the root folder (same folder of app.js and config.json)
+    - Paste the following data in the .env file:
+    ```javascript
+    API_PORT="3000"
+    MYSQL_HOST="localhost"
+    MYSQL_USER="root"
+    MYSQL_DATABASE="shareameal"
+    MYSQL_PORT="3306"
+    MYSQL_PASSWORD=""
+    ```
+    - Change the values to your own settings or keep the 
 6. Run `npm run dev`, this will start the API.
 
 Congratulations! You now have the API running on your local device.
 
 ## Examples
 This API can be used in multiple ways:
-# images
 
 ### Android Application
 In periode 1.3 of Avans HBO Informatica we created an android application using an API with the same functionalities:
