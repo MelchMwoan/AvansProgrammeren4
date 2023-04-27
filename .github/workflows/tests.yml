@@ -38,6 +38,7 @@ jobs:
         run: |
           mysql -uroot -p${{env.MYSQL_ROOT_PASSWORD}} ${{env.MYSQL_DATABASE}} < share-a-meal.sql
           mysql -uroot -p${{env.MYSQL_ROOT_PASSWORD}} ${{env.MYSQL_DATABASE}} -e "SHOW TABLES;"
+          mysql -uroot -p${{env.MYSQL_ROOT_PASSWORD}} ${{env.MYSQL_DATABASE}} -e "SHOW VARIABLES;"
       - run: npm ci
       - run: npm test
   
