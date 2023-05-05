@@ -246,8 +246,6 @@ router.route('/:userId')
             logger.debug(sqlStatement)
             mysqldatabase.getConnection(function (err, conn) {
                 if (err) {
-                    console.log(err)
-                    console.log(conn)
                     logger.error(`MySQL error: ${err}`);
                     next(`MySQL error: ${err.message}`)
                 }
