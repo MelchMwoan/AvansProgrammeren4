@@ -3,6 +3,7 @@ const chaiHttp = require('chai-http');
 const server = require('../../app.js');
 chai.should();
 chai.use(chaiHttp);
+const dbconnection = require('../../src/utils/mysql-db.js');
 
 describe('Delete User By Id UC-206', function () {
     it('TC-206-1-UserDoesNotExist', (done) => {

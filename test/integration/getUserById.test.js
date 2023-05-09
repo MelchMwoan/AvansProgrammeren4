@@ -3,6 +3,7 @@ const chaiHttp = require('chai-http');
 const server = require('../../app.js');
 chai.should();
 chai.use(chaiHttp);
+const dbconnection = require('../../src/utils/mysql-db.js');
 
 describe('Get User Details By Id UC-204', function () {
     it('TC-204-1-InvalidToken', (done) => {
