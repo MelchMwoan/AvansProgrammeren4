@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const logger = require('tracer').colorConsole();
-const database = require('../utils/inmem-db');
 const mysqldatabase = require('../utils/mysql-db');
 const Joi = require('joi');
 const tokenSchema = Joi.string().token().required();

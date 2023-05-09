@@ -2,7 +2,6 @@ const express = require('express')
 const router = express.Router()
 const logger = require('tracer').colorConsole();
 const Joi = require('joi');
-const database = require('../utils/inmem-db.js');
 const mysqldatabase = require('../utils/mysql-db');
 const schema = Joi.object({
     firstName: Joi.string().min(3).max(30).required(),
