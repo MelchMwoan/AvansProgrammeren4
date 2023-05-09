@@ -1,7 +1,7 @@
 {
     "apiport": 3000,
-    "mysql_host": "127.0.0.1",
-    "mysql_user": "root",
-    "mysql_database": "shareameal",
+    "mysql_host": "web.consulhosting.com",
+    "mysql_user": "voqarscy_ShareAMeal",
+    "mysql_database": "voqarscy_ShareAMeal",
     "mysql_port": 3306
 }

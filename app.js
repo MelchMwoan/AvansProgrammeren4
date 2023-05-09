@@ -10,7 +10,7 @@ const app = express()
 const port = process.env.API_PORT || config.apiport;
 
 app.listen(port, () => {
-    logger.debug(`Example app listening on port ${port}`)
+    logger.debug(`Share-a-Meal listening on port ${port}`)
 })
 
 app.use('*', (req, res, next) => {
