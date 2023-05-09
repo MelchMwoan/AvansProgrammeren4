@@ -14,6 +14,7 @@ app.listen(port, () => {
 })
 
 app.use('*', (req, res, next) => {
+    logger.log(req)
     logger.log(`${req.method} request on ${req.originalUrl}`)
     next()
 })
