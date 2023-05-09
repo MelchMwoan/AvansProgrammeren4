@@ -15,12 +15,12 @@ describe('Get User Details By Id UC-204', function () {
     })
     it('TC-204-2-UserIdDoesNotExist', (done) => {
         //Testing for getting user details with a non existent Id
-        chai.request(server).get("/api/user/999?token=validToken").end((err, res) => {
+        chai.request(server).get("/api/user/9999?token=validToken").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(404)
-            message.should.be.a("string").that.contains("Userdata-endpoint: Not Found, User with ID #999 not found");
+            message.should.be.a("string").that.contains("Userdata-endpoint: Not Found, User with ID #9999 not found");
             data.should.be.an("object");
             data.should.be.empty;
             done();

@@ -60,7 +60,7 @@ describe('Register UC-201', function () {
     })
     it('TC-201-5-SuccesfullRegistration', (done) => {
         //Testing for succesfull registration
-        chai.request(server).post("/api/register?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAdress=test@test.nl&password=test1!&phoneNumber=31636363655").end((err, res) => {
+        chai.request(server).post("/api/register?firstName=TC-201-5&lastName=TC-201-5&street=teststreet&city=testcity&emailAdress=TC-201-5@UC-201.nl&password=test1!&phoneNumber=31636363655").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
