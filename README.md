@@ -40,7 +40,7 @@ Congratulations! You now have the API running on your local device.
 ## Examples
 ---
 ### Succesfull Deployment
-This API is already succesfully deployed [here](https://long-route-production.up.railway.app/). You can try and check it out!
+This API is already succesfully deployed [here](https://share-a-meal.melchmwoan.com). You can try and check it out!
 *See all available routes [here](https://documenter.getpostman.com/view/25891505/2s93eZxr1P).*
 
 ### Android Application
