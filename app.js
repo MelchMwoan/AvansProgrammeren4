@@ -20,6 +20,8 @@ app.use('*', (req, res, next) => {
 
 const register = require('./src/routes/register.js');
 app.use('/api/register', register);
+const login = require('./src/routes/login.js');
+app.use('/api/login', login);
 const user = require('./src/routes/user.js');
 app.use('/api/user', user);
 const info = require('./src/routes/info.js');
