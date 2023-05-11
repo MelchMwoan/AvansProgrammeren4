@@ -3,7 +3,7 @@
 ---
 
 
-This is an API which is used to create the backend of the Share-a-Meal application.
+This is an API which is used to create the backend of a Share-a-Meal application.
 
 ## Requirements for installation
 ---
@@ -25,12 +25,12 @@ To install this API and run it on your own device complete the following steps f
     - Create a .env file in the root folder (same folder of app.js and config.json)
     - Paste the following data in the .env file:
     ```javascript
-    API_PORT=3000
-    MYSQL_HOST=db-mysql-ams3-46626-do-user-8155278-0.b.db.ondigitalocean.com
-    MYSQL_USER=2205378
-    MYSQL_DATABASE=2205378
-    MYSQL_PORT=25060
-    MYSQL_PASSWORD=SAM123!
+    API_PORT="3000"
+    MYSQL_HOST="db-mysql-ams3-46626-do-user-8155278-0.b.db.ondigitalocean.com"
+    MYSQL_USER="2205378"
+    MYSQL_DATABASE="2205378"
+    MYSQL_PORT="25060"
+    MYSQL_PASSWORD="SAM123!"
     ```
     - Change the values to your own mysql database settings or keep the default settings
 6. Run `node app.js`, this will start the API.
@@ -42,16 +42,6 @@ Congratulations! You now have the API running on your local device.
 ### Succesfull Deployment
 This API is already succesfully deployed [here](https://share-a-meal.melchmwoan.com). You can try and check it out!
 *See all available routes [here](https://documenter.getpostman.com/view/25891505/2s93eZxr1P).*
-
-### Android Application
-In periode 1.3 of Avans HBO Informatica we created an android application using an API with the same functionalities:
-
-//TODO: add images
-
-### WebApp
-There also is a webapp created by a teacher which uses an API with the same functionalitites:
-
-//TODO: add images
 
 ## What's New
 ---
