@@ -4,7 +4,7 @@ const logger = require('tracer').colorConsole();
 const mysqldatabase = require('../utils/mysql-db');
 const Joi = require('joi');
 const tokenSchema = Joi.string().token().required();
-const emailSchema = Joi.string().email().required();
+const emailSchema = Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}\+@[A-Z0-9]{2,}\+\.[A-Z]{2,3}$/i).required()
 const phoneSchema = Joi.string().pattern(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im).required().messages({ 'string.pattern.base': `{:[.]} is not a valid phone number` });
 
 router.get('/', (req, res, next) => {

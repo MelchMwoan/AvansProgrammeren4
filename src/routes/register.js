@@ -9,7 +9,7 @@ const schema = Joi.object({
     street: Joi.string().min(3).max(30).required(),
     city: Joi.string().min(3).max(30).required(),
     isActive: Joi.boolean(),
-    emailAdress: Joi.string().email().required(),
+    emailAdress: Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}\+@[A-Z0-9]{2,}\+\.[A-Z]{2,3}$/i).required(),
     password: Joi.string().pattern(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/).required().messages({ 'string.pattern.base': `{:[.]} is not a valid password (at least 1 number and 1 special character, 6-16 characters)` }),
     phoneNumber: Joi.string().pattern(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im).required().messages({ 'string.pattern.base': `{:[.]} is not a valid phone number` })
 })
