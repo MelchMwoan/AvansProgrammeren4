@@ -1,79 +1,90 @@
 const express = require('express')
 const router = express.Router()
 const logger = require('tracer').colorConsole();
-const user = require('./user.js');
+const Joi = require('joi');
+const mysqldatabase = require('../utils/mysql-db');
+const schema = Joi.object({
+    firstName: Joi.string().min(3).max(30).required(),
+    lastName: Joi.string().min(3).max(30).required(),
+    street: Joi.string().min(3).max(30).required(),
+    city: Joi.string().min(3).max(30).required(),
+    isActive: Joi.boolean(),
+    emailAdress: Joi.string().email().required(),
+    password: Joi.string().pattern(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/).required().messages({ 'string.pattern.base': `{:[.]} is not a valid password (at least 1 number and 1 special character, 6-16 characters)` }),
+    phoneNumber: Joi.string().pattern(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im).required().messages({ 'string.pattern.base': `{:[.]} is not a valid phone number` })
+})
 
-router.post('/', (req, res) => {
-    const firstName = req.query.firstName;
-    const lastName = req.query.lastName;
-    const street = req.query.street;
-    const city = req.query.city;
-    const isActive = req.query.isActive;
-    const emailAddress = req.query.emailAddress;
-    const password = req.query.password;
-    const phoneNumber = req.query.phoneNumber;
-    logger.debug(`Given data: FirstName: ${firstName}, LastName: ${lastName}, Street: ${street}, City: ${city}, Active: ${isActive},Email: ${emailAddress}, Password: ${password}, Phone: ${phoneNumber}`)
-    if (firstName == undefined || lastName == undefined || street == undefined || city == undefined || emailAddress == undefined || password == undefined || phoneNumber == undefined) {
+router.post('/', (req, res, next) => {
+    const result = schema.validate(req.query);
+    logger.debug("Received data for register: " + JSON.stringify(result.value))
+    if (result.error != undefined) {
+        logger.error(result.error.message)
         res.status(400).json({
             status: 400,
-            message: "Register-endpoint: Bad Request, please provide all required properties",
+            message: "Register-endpoint: Bad Request, " + result.error.message,
             data: {}
         });
     } else {
-        if (!emailAddress.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/)) {
-            logger.error(`Invalid email: ${emailAddress}`)
-            res.status(400).json({
-                status: 400,
-                message: "Register-endpoint: Bad Request, email is not valid",
-                data: {}
-            });
-        } else if (!password.match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/)) {
-            //Checks if password matches at least 1 number, at least 1 special character and is between 6 and 16 characters
-            logger.error(`Invalid password: ${password}`)
-            res.status(400).json({
-                status: 400,
-                message: "Register-endpoint: Bad Request, password is not valid (1 number, 1 special character, 6-16 characters)",
-                data: {}
-            });
-        } else if (!phoneNumber.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im)) {
-            logger.error(`Invalid phoneNumber: ${phoneNumber}`)
-            res.status(400).json({
-                status: 400,
-                message: "Register-endpoint: Bad Request, phone number is not valid",
-                data: {}
-            });
-        } else {
-            user.userArray.forEach(user => {
-                if (user.emailAddress == emailAddress) {
-                    logger.error(`User with email ${emailAddress} already exists`)
-                    res.status(403).json({
-                        status: 403,
-                        message: `Register-endpoint: Forbidden, user with email: '${emailAddress}' already exists`,
-                        data: {}
-                    });
-                    return;
-                }
-            })
-        }
-        if (!res.headersSent) {
-            user.userArray.push({
-                id: user.userArray.length + 1,
-                firstName: firstName,
-                lastName: lastName,
-                street: street,
-                city: city,
-                isActive: (isActive == undefined ? "true" : isActive),
-                emailAddress: emailAddress,
-                password: password,
-                phoneNumber: phoneNumber
-            });
-            logger.info(`User with id ${user.userArray.length} has been created`)
-            res.status(201).json({
-                status: 201,
-                message: "Register-endpoint: Created, succesfully created a new user",
-                data: user.userArray.at(-1)
-            });
-        }
+        let sqlStatement = `Select * FROM \`user\` WHERE \`emailAdress\`='${req.query.emailAdress}'`;
+        logger.debug(sqlStatement)
+        mysqldatabase.getConnection(function (err, conn) {
+            if (err) {
+                logger.error(`MySQL error: ${err}`);
+                next(`MySQL error: ${err.message}`)
+            }
+            if (conn) {
+                conn.query(sqlStatement, function (err, results, fields) {
+                    if (err) {
+                        logger.error(err.message);
+                        next({
+                            code: 409,
+                            message: err.message
+                        });
+                    }
+                    if (results.length != 0) {
+                        logger.error(`User with email ${req.query.emailAdress} already exists`)
+                        res.status(403).json({
+                            status: 403,
+                            message: `Register-endpoint: Forbidden, user with email: '${req.query.emailAdress}' already exists`,
+                            data: {}
+                        });
+                    } else {
+                        sqlStatement = `INSERT INTO \`user\` (firstName,lastName,isActive,emailAdress,password,phoneNumber,street,city) VALUES ('${req.query.firstName}','${req.query.lastName}',${(req.query.isActive == undefined ? true : req.query.isActive)},'${req.query.emailAdress}','${req.query.password}','${req.query.phoneNumber}','${req.query.street}','${req.query.city}')`;
+                        logger.debug(sqlStatement)
+                        conn.query(sqlStatement, function (err, results, fields) {
+                            if (err) {
+                                logger.error(err.message);
+                                next({
+                                    code: 409,
+                                    message: err.message
+                                });
+                            }
+                            if (results.affectedRows > 0) {
+                                sqlStatement = `Select * FROM \`user\` WHERE \`id\`='${results.insertId}'`;
+                                conn.query(sqlStatement, function (err, results, fields) {
+                                    if (err) {
+                                        logger.error(err.message);
+                                        next({
+                                            code: 409,
+                                            message: err.message
+                                        });
+                                    }
+                                    if (results.length > 0) {
+                                        logger.info(`User with id #${results[0].id} has been created`)
+                                        res.status(201).json({
+                                            status: 201,
+                                            message: "Register-endpoint: Created, succesfully created a new user",
+                                            data: results[0]
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+                mysqldatabase.releaseConnection(conn);
+            }
+        })
     }
 })
 

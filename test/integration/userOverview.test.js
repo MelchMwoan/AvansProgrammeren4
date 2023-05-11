@@ -3,6 +3,7 @@ const chaiHttp = require('chai-http');
 const server = require('../../app.js');
 chai.should();
 chai.use(chaiHttp);
+const dbconnection = require('../../src/utils/mysql-db.js');
 
 describe('User Overview UC-202', function () {
     it('TC-202-1-ShowAllUsers', (done) => {
@@ -17,14 +18,14 @@ describe('User Overview UC-202', function () {
             done();
         })
     })
-    it('TC-202-2-ShowAllUsersOnNonExistingSearchFields', (done) => {
+    it('TC-202-2-ShowNoUsersOnNonExistingSearchFields', (done) => {
         //Testing for at least two users with filters that are not existent
         chai.request(server).get("/api/user?nonexistent=fake").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(200)
-            message.should.be.a("string").that.contains("All Users-endpoint: filtered");
+            message.should.be.a("string").that.contains("Unknown column 'nonexistent' in 'where clause'");
             data.should.be.an("array").to.have.length(0);
             done();
         })
@@ -36,11 +37,11 @@ describe('User Overview UC-202', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(200)
-            message.should.be.a("string").that.contains("All Users-endpoint: filtered");
+            message.should.be.a("string").that.contains("All Users-endpoint");
             data.should.be.an("array");
             data.forEach(user => {
                 let { isActive } = user;
-                isActive.should.to.be.equal("false");
+                isActive.should.to.be.equal(0);
             })
             done();
         })
@@ -52,11 +53,11 @@ describe('User Overview UC-202', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(200)
-            message.should.be.a("string").that.contains("All Users-endpoint: filtered");
+            message.should.be.a("string").that.contains("All Users-endpoint");
             data.should.be.an("array");
             data.forEach(user => {
                 let { isActive } = user;
-                isActive.should.to.be.equal("true");
+                isActive.should.to.be.equal(1);
             })
             done();
         })
@@ -68,11 +69,11 @@ describe('User Overview UC-202', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(200)
-            message.should.be.a("string").that.contains("All Users-endpoint: filtered");
+            message.should.be.a("string").that.contains("All Users-endpoint");
             data.should.be.an("array");
             data.forEach(user => {
                 let { isActive, city } = user;
-                isActive.should.to.be.equal("true");
+                isActive.should.to.be.equal(1);
                 city.should.to.be.equal("Breda");
             })
             done();

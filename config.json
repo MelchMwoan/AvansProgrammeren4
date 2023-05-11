@@ -1,3 +1,7 @@
 {
-    "port": 3000
+    "apiport": 3000,
+    "mysql_host": "db-mysql-ams3-46626-do-user-8155278-0.b.db.ondigitalocean.com",
+    "mysql_user": "2205378",
+    "mysql_database": "2205378",
+    "mysql_port": 25060
 }

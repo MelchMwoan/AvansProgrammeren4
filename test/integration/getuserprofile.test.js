@@ -3,6 +3,7 @@ const chaiHttp = require('chai-http');
 const server = require('../../app.js');
 chai.should();
 chai.use(chaiHttp);
+const dbconnection = require('../../src/utils/mysql-db.js');
 
 describe('Get User Profile UC-203', function () {
     it('TC-203-1-InvalidToken', (done) => {
@@ -21,7 +22,7 @@ describe('Get User Profile UC-203', function () {
             status.should.equal(200)
             message.should.be.a("string").that.contains("Profile-endpoint");
             data.should.be.an("object");
-            // data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAddress", "password", "phoneNumber");
+            // data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAdress", "password", "phoneNumber");
             data.should.be.empty;
             done();
         })
@@ -33,7 +34,7 @@ describe('Get User Profile UC-203', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(401)
-            message.should.be.a("string").that.contains("Profile-endpoint: Unauthorized, token is undefined");
+            message.should.be.a("string").that.contains("Profile-endpoint: Unauthorized, \"token\" is required");
             data.should.be.an("object");
             data.should.be.empty;
             done();
