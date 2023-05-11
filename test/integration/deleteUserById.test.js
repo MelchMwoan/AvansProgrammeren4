@@ -35,7 +35,7 @@ describe('Delete User By Id UC-206', function () {
     })
     it('TC-206-4-UserSuccesfullyDeleted', (done) => {
         //Testing for deleting user
-        chai.request(server).post("/api/register?firstName=TC-206-4&lastName=TC-206-4&street=teststreet&city=testcity&emailAdress=TC-206-4@UC-206.nl&password=test1!&phoneNumber=31636363655").end((err, res) => {
+        chai.request(server).post("/api/register?firstName=TC-206-4&lastName=TC-206-4&street=teststreet&city=testcity&emailAdress=t.TC2064@UC206.nl&password=Testpassword1!&phoneNumber=06 12345678").end((err, res) => {
             const id = res.body.data.id;
             chai.request(server).delete(`/api/user/${id}?token=validtoken`).end((err, res) => {
                 res.body.should.be.an("object");
