@@ -214,7 +214,7 @@ router.route('/:userId')
                                     }
                                 });
                             } else {
-                                logger.error(`User with id #${userId} and email ${req.query.emailadress} not found`)
+                                logger.error(`User with id #${userId} and email ${req.query.emailAdress} not found`)
                                 res.status(404).json({
                                     status: 404,
                                     message: `Userdata Update-endpoint: Not Found, User with id #${userId} and email ${req.query.emailAdress} not found`,
