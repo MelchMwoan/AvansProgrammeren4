@@ -5,7 +5,7 @@ const mysqldatabase = require('../utils/mysql-db');
 const Joi = require('joi');
 const tokenSchema = Joi.string().token().required();
 const emailSchema = Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}\+@[A-Z0-9]{2,}\+\.[A-Z]{2,3}$/i).required()
-const phoneSchema = Joi.string().pattern(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im).required().messages({ 'string.pattern.base': `{:[.]} is not a valid phone number` });
+const phoneSchema = Joi.string().pattern(/^06[\s\-]?[0-9]{8}$/).required().messages({ 'string.pattern.base': `{:[.]} is not a valid phone number (starts with 06 and contains 10 digits in total)` });
 
 router.get('/', (req, res, next) => {
     let sqlStatement = 'Select * FROM `user`';
