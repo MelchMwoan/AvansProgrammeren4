@@ -4,7 +4,7 @@ const logger = require('tracer').colorConsole();
 const mysqldatabase = require('../utils/mysql-db');
 const Joi = require('joi');
 const tokenSchema = Joi.string().token().required();
-const emailSchema = Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}@[A-Z0-9]{2,}\.[A-Z]{2,3}$/i).required().messages({ 'string.pattern.base': `\"emailAdress\" must be a valid email` })
+const emailSchema = Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}@[A-Z0-9]{2,}\.[A-Z]{2,3}$/i).required().messages({ 'string.pattern.base': `\"emailAddress\" must be a valid email` })
 const phoneSchema = Joi.string().pattern(/^06[\s\-]?[0-9]{8}$/).required().messages({ 'string.pattern.base': `{:[.]} is not a valid phone number (starts with 06 and contains 10 digits in total)` });
 
 router.get('/', (req, res, next) => {
@@ -138,12 +138,12 @@ router.route('/:userId')
     .put((req, res, next) => {
         //TODO: Check ownership through token 403
         //TODO: Check logged in
-        const result = emailSchema.validate(req.query.emailAdress);
+        const result = emailSchema.validate(req.query.emailAddress);
         if (result.error != undefined) {
-            logger.error(result.error.message.replace("value", "emailAdress"))
+            logger.error(result.error.message.replace("value", "emailAddress"))
             res.status(400).json({
                 status: 400,
-                message: `Userdata Update-endpoint: Bad Request, ${result.error.message.replace("value", "emailAdress")}`,
+                message: `Userdata Update-endpoint: Bad Request, ${result.error.message.replace("value", "emailAddress")}`,
                 data: {}
             });
         } else {
@@ -161,7 +161,7 @@ router.route('/:userId')
             if (!res.headersSent) {
                 const userId = req.params.userId;
                 logger.info(`User with token ${req.query.token} called update userdata for: ${req.params.userId}`)
-                let sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.params.userId} AND \`emailAdress\`='${req.query.emailAdress}'`;
+                let sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.params.userId} AND \`emailAddress\`='${req.query.emailAddress}'`;
                 logger.debug(sqlStatement)
                 mysqldatabase.getConnection(function (err, conn) {
                     if (err) {
@@ -180,7 +180,7 @@ router.route('/:userId')
                                 logger.info(`Found user with id #${userId}`);
                                 let user = results[0]
                                 let sqlStatement = `UPDATE \`user\` SET`;
-                                for (let [key, value] of Object.entries((({ emailAdress, ...o }) => o)(req.query))) {
+                                for (let [key, value] of Object.entries((({ emailAddress, ...o }) => o)(req.query))) {
                                     if (user[key] != undefined) {
                                         logger.debug(`Changing ${key} for #${userId} from ${user[key]} to ${value}`)
                                         user[key] = value;
@@ -196,7 +196,7 @@ router.route('/:userId')
                                         logger.warn(`Key ${key} is not applicable to User`)
                                     }
                                 }
-                                sqlStatement += ` WHERE \`id\`=${req.params.userId} AND \`emailAdress\`='${req.query.emailAdress}'`;
+                                sqlStatement += ` WHERE \`id\`=${req.params.userId} AND \`emailAddress\`='${req.query.emailAddress}'`;
                                 logger.debug(sqlStatement)
                                 conn.query(sqlStatement, function (err, results, fields) {
                                     if (err) {
@@ -214,10 +214,10 @@ router.route('/:userId')
                                     }
                                 });
                             } else {
-                                logger.error(`User with id #${userId} and email ${req.query.emailAdress} not found`)
+                                logger.error(`User with id #${userId} and email ${req.query.emailAddress} not found`)
                                 res.status(404).json({
                                     status: 404,
-                                    message: `Userdata Update-endpoint: Not Found, User with id #${userId} and email ${req.query.emailAdress} not found`,
+                                    message: `Userdata Update-endpoint: Not Found, User with id #${userId} and email ${req.query.emailAddress} not found`,
                                     data: {}
                                 });
                             }
