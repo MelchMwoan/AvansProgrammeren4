@@ -4,8 +4,8 @@ const logger = require('tracer').colorConsole();
 const mysqldatabase = require('../utils/mysql-db');
 const Joi = require('joi');
 const tokenSchema = Joi.string().token().required();
-const emailSchema = Joi.string().email().required();
-const phoneSchema = Joi.string().pattern(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im).required().messages({ 'string.pattern.base': `{:[.]} is not a valid phone number` });
+const emailSchema = Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}@[A-Z0-9]{2,}\.[A-Z]{2,3}$/i).required().messages({ 'string.pattern.base': `\"emailAdress\" must be a valid email` })
+const phoneSchema = Joi.string().pattern(/^06[\s\-]?[0-9]{8}$/).required().messages({ 'string.pattern.base': `{:[.]} is not a valid phone number (starts with 06 and contains 10 digits in total)` });
 
 router.get('/', (req, res, next) => {
     let sqlStatement = 'Select * FROM `user`';
@@ -214,7 +214,7 @@ router.route('/:userId')
                                     }
                                 });
                             } else {
-                                logger.error(`User with id #${userId} and email ${req.query.emailadress} not found`)
+                                logger.error(`User with id #${userId} and email ${req.query.emailAdress} not found`)
                                 res.status(404).json({
                                     status: 404,
                                     message: `Userdata Update-endpoint: Not Found, User with id #${userId} and email ${req.query.emailAdress} not found`,

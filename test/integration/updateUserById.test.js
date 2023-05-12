@@ -28,7 +28,7 @@ describe('Update User Details By Id UC-205', function () {
     })
     it('TC-205-3-InvalidPhoneNumber', (done) => {
         //Testing for updating user details with Id with invalid phonenumber
-        chai.request(server).put("/api/user/2?emailAdress=henk.jan@mail.nl&phoneNumber=310619410").end((err, res) => {
+        chai.request(server).put("/api/user/2?emailAdress=j.doe@server.com&phoneNumber=310619410").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -41,12 +41,12 @@ describe('Update User Details By Id UC-205', function () {
     })
     it('TC-205-4-UserDoesNotExist', (done) => {
         //Testing for updating user details with Id that does not exists
-        chai.request(server).put("/api/user/8?emailAdress=henk.jan@mail.nl").end((err, res) => {
+        chai.request(server).put("/api/user/8?emailAdress=u.notexists@server.com").end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(404)
-            message.should.be.a("string").that.contains("Userdata Update-endpoint: Not Found, User with id #8 and email henk.jan@mail.nl not found");
+            message.should.be.a("string").that.contains("Userdata Update-endpoint: Not Found, User with id #8 and email u.notexists@server.com not found");
             data.should.be.an("object");
             data.should.be.empty;
             done();
