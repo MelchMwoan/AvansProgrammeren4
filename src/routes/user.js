@@ -6,9 +6,6 @@ const logger = require('tracer').colorConsole();
 const mysqldatabase = require('../utils/mysql-db');
 const Joi = require('joi');
 const authentication = require('../utils/authentication');
-const tokenSchema = Joi.string().token().required();
-const emailSchema = Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}@[A-Z0-9]{2,}\.[A-Z]{2,3}$/i).required().messages({ 'string.pattern.base': `\"emailAddress\" must be a valid email` })
-const phoneSchema = Joi.string().pattern(/^06[\s\-]?[0-9]{8}$/).required().messages({ 'string.pattern.base': `{:[.]} is not a valid phone number (starts with 06 and contains 10 digits in total)` });
 const schema = Joi.object({
     firstName: Joi.string().min(3).max(30).required(),
     lastName: Joi.string().min(3).max(30).required(),
@@ -18,6 +15,16 @@ const schema = Joi.object({
     emailAddress: Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}@[A-Z0-9]{2,}\.[A-Z]{2,3}$/i).required().messages({ 'string.pattern.base': `\"emailAddress\" must be a valid email` }),
     password: Joi.string().pattern(/^(?=.*[0-9])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{8,}$/).required().messages({ 'string.pattern.base': `{:[.]} is not a valid password (at least 1 number and 1 capital, 8 minimum characters)` }),
     phoneNumber: Joi.string().pattern(/^06[\s\-]?[0-9]{8}$/).required().messages({ 'string.pattern.base': `{:[.]} is not a valid phone number (starts with 06 and contains 10 digits in total)` })
+})
+const updateSchema = Joi.object({
+    firstName: Joi.string().min(3).max(30),
+    lastName: Joi.string().min(3).max(30),
+    street: Joi.string().min(3).max(30),
+    city: Joi.string().min(3).max(30),
+    isActive: Joi.boolean(),
+    emailAddress: Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}@[A-Z0-9]{2,}\.[A-Z]{2,3}$/i).required().messages({ 'string.pattern.base': `\"emailAddress\" must be a valid email` }),
+    password: Joi.string().pattern(/^(?=.*[0-9])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{8,}$/).messages({ 'string.pattern.base': `{:[.]} is not a valid password (at least 1 number and 1 capital, 8 minimum characters)` }),
+    phoneNumber: Joi.string().pattern(/^06[\s\-]?[0-9]{8}$/).messages({ 'string.pattern.base': `{:[.]} is not a valid phone number (starts with 06 and contains 10 digits in total)` })
 })
 
 router.route('/')
@@ -221,52 +228,41 @@ router.route('/:userId')
         })
     })
     .put(authentication.validateToken, jsonParser, (req, res, next) => {
-        const result = emailSchema.validate(req.body.emailAddress);
+        const result = updateSchema.validate(req.body);
         if (result.error != undefined) {
-            logger.error(result.error.message.replace("value", "emailAddress"))
+            logger.error(result.error.message)
             res.status(400).json({
                 status: 400,
-                message: `Userdata Update-endpoint: Bad Request, ${result.error.message.replace("value", "emailAddress")}`,
-                data: {}
-            });
-        } else if (req.userId != req.params.userId) {
-            logger.error(`${req.userId} tried to update data of ${req.params.userId}`)
-            res.status(403).json({
-                status: 403,
-                message: `Userdata Update-endpoint: Forbidden, you are not the owner of the account with id #${req.params.userId}`,
+                message: `Userdata Update-endpoint: Bad Request, ${result.error.message}`,
                 data: {}
             });
         } else {
-            if (req.body.phoneNumber != undefined) {
-                const result = phoneSchema.validate(req.body.phoneNumber);
-                if (result.error != undefined) {
-                    logger.error(result.error.message.replace("value", "phoneNumber"))
-                    res.status(400).json({
-                        status: 400,
-                        message: `Userdata Update-endpoint: Bad Request, ${result.error.message.replace("value", "phoneNumber")}`,
-                        data: {}
-                    });
+            const userId = req.params.userId;
+            logger.info(`User #${req.userId} called update userdata for: ${req.params.userId}`)
+            let sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.params.userId} AND \`emailAddress\`='${req.body.emailAddress}'`;
+            logger.debug(sqlStatement)
+            mysqldatabase.getConnection(function (err, conn) {
+                if (err) {
+                    logger.error(`MySQL error: ${err}`);
+                    next(`MySQL error: ${err.message}`)
                 }
-            }
-            if (!res.headersSent) {
-                const userId = req.params.userId;
-                logger.info(`User with token ${req.body.token} called update userdata for: ${req.params.userId}`)
-                let sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.params.userId} AND \`emailAddress\`='${req.body.emailAddress}'`;
-                logger.debug(sqlStatement)
-                mysqldatabase.getConnection(function (err, conn) {
-                    if (err) {
-                        logger.error(`MySQL error: ${err}`);
-                        next(`MySQL error: ${err.message}`)
-                    }
-                    if (conn) {
-                        conn.query(sqlStatement, function (err, results, fields) {
-                            if (err) {
-                                logger.error(err.message);
-                                next({
-                                    code: 409,
-                                    message: err.message
+                if (conn) {
+                    conn.query(sqlStatement, function (err, results, fields) {
+                        if (err) {
+                            logger.error(err.message);
+                            next({
+                                code: 409,
+                                message: err.message
+                            });
+                        } else if (results.length != 0) {
+                            if (req.userId != req.params.userId) {
+                                logger.error(`${req.userId} tried to update data of ${req.params.userId}`)
+                                res.status(403).json({
+                                    status: 403,
+                                    message: `Userdata Update-endpoint: Forbidden, you are not the owner of the account with id #${req.params.userId}`,
+                                    data: {}
                                 });
-                            } else if (results.length != 0) {
+                            } else {
                                 logger.info(`Found user with id #${userId}`);
                                 let user = results[0]
                                 let sqlStatement = `UPDATE \`user\` SET`;
@@ -303,19 +299,19 @@ router.route('/:userId')
                                         });
                                     }
                                 });
-                            } else {
-                                logger.error(`User with id #${userId} and email ${req.body.emailAddress} not found`)
-                                res.status(404).json({
-                                    status: 404,
-                                    message: `Userdata Update-endpoint: Not Found, User with id #${userId} and email ${req.body.emailAddress} not found`,
-                                    data: {}
-                                });
                             }
-                        });
-                        mysqldatabase.releaseConnection(conn);
-                    }
-                })
-            }
+                        } else {
+                            logger.error(`User with id #${userId} and email ${req.body.emailAddress} not found`)
+                            res.status(404).json({
+                                status: 404,
+                                message: `Userdata Update-endpoint: Not Found, User with id #${userId} and email ${req.body.emailAddress} not found`,
+                                data: {}
+                            });
+                        }
+                    });
+                    mysqldatabase.releaseConnection(conn);
+                }
+            })
         }
     })
     .delete(authentication.validateToken, jsonParser, (req, res, next) => {
@@ -325,7 +321,7 @@ router.route('/:userId')
                 next(`MySQL error: ${err.message}`)
             }
             if (conn) {
-                let sqlStatement = `SELECT FROM \`user\` WHERE \`id\`=${req.params.userId}`
+                let sqlStatement = `SELECT * FROM \`user\` WHERE \`id\`=${req.params.userId}`
                 conn.query(sqlStatement, function (err, results, fields) {
                     if (err) {
                         logger.error(err.message);
