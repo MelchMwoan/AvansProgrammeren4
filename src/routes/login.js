@@ -59,7 +59,6 @@ router.post('/', jsonParser, (req, res, next) => {
                                         message: `Login-endpoint: JWT Error, please contact a server administrator`,
                                         data: {}
                                     });
-                                    
                                 }else {
                                     logger.info(`User with email ${req.body.emailAddress} is succesfully logged in`)
                                     res.status(200).json({
