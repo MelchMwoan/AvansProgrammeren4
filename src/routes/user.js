@@ -185,7 +185,7 @@ router.get('/profile', authentication.validateToken, jsonParser, (req, res) => {
 router.route('/:userId')
     .get(authentication.validateToken, jsonParser, (req, res, next) => {
         //TODO: 3.	Het systeem zoekt de details van de bijbehorende maaltijden die vandaag of in de toekomst plaatsvinden op.
-        logger.info(`User with token ${req.body.token} called get userdata for: ${req.params.userId}`)
+        logger.info(`User #${req.userId} called get userdata for: ${req.params.userId}`)
         let sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.params.userId}`;
         logger.debug(sqlStatement)
         mysqldatabase.getConnection(function (err, conn) {
@@ -345,7 +345,7 @@ router.route('/:userId')
                                 data: {}
                             });
                         } else {
-                            logger.info(`User with token ${req.body.token} called delete userdata for: ${req.params.userId}`)
+                            logger.info(`User #${req.userId} called delete userdata for: ${req.params.userId}`)
                             let sqlStatement = `DELETE FROM \`user\` WHERE \`id\`=${req.params.userId}`;
                             logger.debug(sqlStatement)
                             conn.query(sqlStatement, function (err, results, fields) {
