@@ -142,6 +142,7 @@ router.route('/')
 
 
 router.get('/profile', authentication.validateToken, jsonParser, (req, res) => {
+    //TODO: 3.	Het systeem zoekt de details van de bijbehorende maaltijden die vandaag of in de toekomst plaatsvinden op.
     logger.info(`User with id ${req.userId} called profile info`)
     let sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.userId}`;
     logger.debug(sqlStatement)
@@ -176,6 +177,7 @@ router.get('/profile', authentication.validateToken, jsonParser, (req, res) => {
 
 router.route('/:userId')
     .get(authentication.validateToken, jsonParser, (req, res, next) => {
+        //TODO: 3.	Het systeem zoekt de details van de bijbehorende maaltijden die vandaag of in de toekomst plaatsvinden op.
         logger.info(`User with token ${req.body.token} called get userdata for: ${req.params.userId}`)
         let sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.params.userId}`;
         logger.debug(sqlStatement)
@@ -317,50 +319,61 @@ router.route('/:userId')
         }
     })
     .delete(authentication.validateToken, jsonParser, (req, res, next) => {
-        if (req.userId != req.params.userId) {
-            logger.error(`${req.userId} tried to delete data of ${req.params.userId}`)
-            res.status(403).json({
-                status: 403,
-                message: `Userdata Delete-endpoint: Forbidden, you are not the owner of the account with id #${req.params.userId}`,
-                data: {}
-            });
-        } else {
-            logger.info(`User with token ${req.body.token} called delete userdata for: ${req.params.userId}`)
-            let sqlStatement = `DELETE FROM \`user\` WHERE \`id\`=${req.params.userId}`;
-            logger.debug(sqlStatement)
-            mysqldatabase.getConnection(function (err, conn) {
-                if (err) {
-                    logger.error(`MySQL error: ${err}`);
-                    next(`MySQL error: ${err.message}`)
-                }
-                if (conn) {
-                    conn.query(sqlStatement, function (err, results, fields) {
-                        if (err) {
-                            logger.error(err.message);
-                            next({
-                                code: 409,
-                                message: err.message
-                            });
-                        } else if (results.affectedRows > 0) {
-                            logger.info(`User with ID #${req.params.userId} succesfully deleted`)
-                            res.status(200).json({
-                                status: 200,
-                                message: `Userdata Delete-endpoint: User with ID #${req.params.userId} succesfully deleted`,
+        mysqldatabase.getConnection(function (err, conn) {
+            if (err) {
+                logger.error(`MySQL error: ${err}`);
+                next(`MySQL error: ${err.message}`)
+            }
+            if (conn) {
+                let sqlStatement = `SELECT FROM \`user\` WHERE \`id\`=${req.params.userId}`
+                conn.query(sqlStatement, function (err, results, fields) {
+                    if (err) {
+                        logger.error(err.message);
+                        next({
+                            code: 409,
+                            message: err.message
+                        });
+                    } else if (results.length == 0) {
+                        logger.error(`User with id #${req.params.userId} does not exist`)
+                        res.status(404).json({
+                            status: 404,
+                            message: `Userdata Delete-endpoint: Not Found, User with ID #${req.params.userId} not found`,
+                            data: {}
+                        });
+                    } else {
+                        if (req.userId != req.params.userId) {
+                            logger.error(`${req.userId} tried to delete data of ${req.params.userId}`)
+                            res.status(403).json({
+                                status: 403,
+                                message: `Userdata Delete-endpoint: Forbidden, you are not the owner of the account with id #${req.params.userId}`,
                                 data: {}
                             });
                         } else {
-                            logger.error(`User with id #${req.params.userId} does not exist`)
-                            res.status(404).json({
-                                status: 404,
-                                message: `Userdata Delete-endpoint: Not Found, User with ID #${req.params.userId} not found`,
-                                data: {}
+                            logger.info(`User with token ${req.body.token} called delete userdata for: ${req.params.userId}`)
+                            let sqlStatement = `DELETE FROM \`user\` WHERE \`id\`=${req.params.userId}`;
+                            logger.debug(sqlStatement)
+                            conn.query(sqlStatement, function (err, results, fields) {
+                                if (err) {
+                                    logger.error(err.message);
+                                    next({
+                                        code: 409,
+                                        message: err.message
+                                    });
+                                } else {
+                                    logger.info(`User with ID #${req.params.userId} succesfully deleted`)
+                                    res.status(200).json({
+                                        status: 200,
+                                        message: `Userdata Delete-endpoint: User with ID #${req.params.userId} succesfully deleted`,
+                                        data: {}
+                                    });
+                                }
                             });
                         }
-                    });
-                    mysqldatabase.releaseConnection(conn);
-                }
-            })
-        }
+                    }
+                });
+                mysqldatabase.releaseConnection(conn);
+            }
+        })
     })
 
 module.exports = router;
