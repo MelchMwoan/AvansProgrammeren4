@@ -113,7 +113,7 @@ describe('Register UC-201', function () {
             data.should.be.an("object");
             data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAddress", "password", "phoneNumber", "roles");
             let { isActive, id } = data;
-            chai.expect([1,0]).to.include(isActive);
+            chai.expect(["true","false"]).to.include(isActive);
             chai.request(server).delete(`/api/user/${id}?token=randomtoken`).end()
             done();
         })
