@@ -114,7 +114,7 @@ describe('Register UC-201', function () {
             data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAddress", "password", "phoneNumber", "roles");
             let { isActive, id } = data;
             chai.expect(["true","false"]).to.include(isActive);
-            chai.request(server).delete(`/api/user/${id}?token=randomtoken`).end()
+            chai.request(server).delete(`/api/user/${id}`).send({token: "validtoken"}).end()
             done();
         })
     })
