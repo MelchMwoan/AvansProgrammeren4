@@ -4,18 +4,23 @@ const server = require('../../app.js');
 chai.should();
 chai.use(chaiHttp);
 const dbconnection = require('../../src/utils/mysql-db.js');
+const getUserJson = {
+    token: "validtoken"
+}
 
 describe('Get User Profile UC-203', function () {
     it('TC-203-1-InvalidToken', (done) => {
         //Testing for getting profile with an invalid token
         //TODO: implement token check
-        chai.request(server).get("/api/user/profile?token=invalidToken").end((err, res) => {
+        let json = getUserJson;
+        json.token = "invalidtoken"
+        chai.request(server).get("/api/user/profile").send(json).end((err, res) => {
             done();
         })
     })
     it('TC-203-2-SuccesfullGettingProfile', (done) => {
         //Testing for succesfully getting profile
-        chai.request(server).get("/api/user/profile?token=validToken").end((err, res) => {
+        chai.request(server).get("/api/user/profile").send(getUserJson).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;

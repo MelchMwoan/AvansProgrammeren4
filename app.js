@@ -7,6 +7,8 @@ if(dotenv.config().error) {
 const express = require('express')
 const config = require('./config.json');
 const app = express()
+var bodyParser = require('body-parser')
+var jsonParser = bodyParser.json()
 const port = process.env.API_PORT || config.apiport;
 
 app.listen(port, () => {
