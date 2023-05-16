@@ -30,6 +30,7 @@ const updateSchema = Joi.object({
 
 router.route('/')
     .get(authentication.validateToken, jsonParser, (req, res, next) => {
+        console.log(req)
         let sqlStatement = 'Select * FROM `user`';
         if (Object.keys(req.body).length != 0) {
             logger.debug(`Filtering on: ${Object.entries(req.body)}`)
