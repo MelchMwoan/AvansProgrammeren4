@@ -7,6 +7,8 @@ if(dotenv.config().error) {
 const express = require('express')
 const config = require('./config.json');
 const app = express()
+var bodyParser = require('body-parser')
+var jsonParser = bodyParser.json()
 const port = process.env.API_PORT || config.apiport;
 
 app.listen(port, () => {
@@ -18,8 +20,6 @@ app.use('*', (req, res, next) => {
     next()
 })
 
-// const register = require('./src/routes/register.js');
-// app.use('/api/register', register);
 const user = require('./src/routes/user.js');
 app.use('/api/user', user);
 const info = require('./src/routes/info.js');
