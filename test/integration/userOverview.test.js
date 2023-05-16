@@ -3,12 +3,12 @@ const chaiHttp = require('chai-http');
 const server = require('../../app.js');
 chai.should();
 chai.use(chaiHttp);
-const dbconnection = require('../../src/utils/mysql-db.js');
+const jwt = require('jsonwebtoken');
 
 describe('User Overview UC-202', function () {
     it('TC-202-1-ShowAllUsers', (done) => {
         //Testing for at least two users without filters
-        chai.request(server).get("/api/user").end((err, res) => {
+        chai.request(server).get("/api/user").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -23,7 +23,7 @@ describe('User Overview UC-202', function () {
         const filters = {
             nonexistent: "fake"
         };
-        chai.request(server).get("/api/user").send(filters).end((err, res) => {
+        chai.request(server).get("/api/user").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).send(filters).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -38,7 +38,7 @@ describe('User Overview UC-202', function () {
         let filters = {
             isActive: false
         };
-        chai.request(server).get("/api/user").send(filters).end((err, res) => {
+        chai.request(server).get("/api/user").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).send(filters).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -57,7 +57,7 @@ describe('User Overview UC-202', function () {
         let filters = {
             isActive: true
         };
-        chai.request(server).get("/api/user").send(filters).end((err, res) => {
+        chai.request(server).get("/api/user").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).send(filters).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -77,7 +77,7 @@ describe('User Overview UC-202', function () {
             isActive: true,
             city: "Breda"
         };
-        chai.request(server).get("/api/user").send(filters).end((err, res) => {
+        chai.request(server).get("/api/user").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).send(filters).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;

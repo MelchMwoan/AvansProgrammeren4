@@ -3,7 +3,7 @@ const chaiHttp = require('chai-http');
 const server = require('../../app.js');
 chai.should();
 chai.use(chaiHttp);
-const dbconnection = require('../../src/utils/mysql-db.js');
+const jwt = require('jsonwebtoken');
 
 describe('Register UC-201', function () {
     it('TC-201-1-InputMissing', (done) => {
@@ -114,7 +114,7 @@ describe('Register UC-201', function () {
             data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAddress", "password", "phoneNumber", "roles");
             let { isActive, id } = data;
             chai.expect([true,false]).to.include(isActive);
-            chai.request(server).delete(`/api/user/${id}`).send({token: "validtoken"}).end()
+            chai.request(server).delete(`/api/user/${id}`).set('Authorization', "Bearer " + jwt.sign({userId: id}, process.env.jwtSecretKey)).end()
             done();
         })
     })

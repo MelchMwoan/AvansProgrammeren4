@@ -3,24 +3,19 @@ const chaiHttp = require('chai-http');
 const server = require('../../app.js');
 chai.should();
 chai.use(chaiHttp);
-const dbconnection = require('../../src/utils/mysql-db.js');
-const getUserJson = {
-    token: "validtoken"
-}
+const jwt = require('jsonwebtoken');
 
 describe('Get User Details By Id UC-204', function () {
     it('TC-204-1-InvalidToken', (done) => {
         //Testing for getting user details with Id with an invalid token
         //TODO: implement token check
-        let json = getUserJson;
-        json.token = "invalidtoken"
-        chai.request(server).get("/api/user/3").send(json).end((err, res) => {
+        chai.request(server).get("/api/user/3").set('Authorization', "Bearer " + jwt.sign({userId: 1}, 'invalidtoken')).end((err, res) => {
             done();
         })
     })
     it('TC-204-2-UserIdDoesNotExist', (done) => {
         //Testing for getting user details with a non existent Id
-        chai.request(server).get("/api/user/9999").send(getUserJson).end((err, res) => {
+        chai.request(server).get("/api/user/9999").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -33,7 +28,7 @@ describe('Get User Details By Id UC-204', function () {
     })
     it('TC-204-3-SuccesfullyGettingUserDetailsThroughId', (done) => {
         //Testing for getting user details with a existent Id
-        chai.request(server).get("/api/user/3").send(getUserJson).end((err, res) => {
+        chai.request(server).get("/api/user/3").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
