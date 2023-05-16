@@ -21,7 +21,7 @@ const schema = Joi.object({
 })
 
 router.route('/')
-    .get(jsonParser, (req, res, next) => {
+    .get(authentication.validateToken, jsonParser, (req, res, next) => {
         let sqlStatement = 'Select * FROM `user`';
         if (Object.keys(req.body).length != 0) {
             logger.debug(`Filtering on: ${Object.entries(req.body)}`)
@@ -64,7 +64,8 @@ router.route('/')
                 mysqldatabase.releaseConnection(conn);
             }
         })
-    }).post(jsonParser, (req, res, next) => {
+    })
+    .post(jsonParser, (req, res, next) => {
         const result = schema.validate(req.body);
         logger.debug("Received data for register: " + JSON.stringify(result.value))
         if (result.error != undefined) {
@@ -315,17 +316,14 @@ router.route('/:userId')
             }
         }
     })
-    .delete(jsonParser, (req, res, next) => {
-        //TODO: Check logged in
-        //TODO: Check ownership through authorization
-        const result = tokenSchema.validate(req.body.token);
-        if (result.error != undefined) {
-            logger.error(result.error.message.replace("value", "token"))
-            res.status(401).json({
-                status: 401,
-                message: `Userdata Delete-endpoint: Unauthorized, ${result.error.message.replace("value", "token")}`,
+    .delete(authentication.validateToken, jsonParser, (req, res, next) => {
+        if (req.userId != req.params.userId) {
+            logger.error(`${req.userId} tried to delete data of ${req.params.userId}`)
+            res.status(403).json({
+                status: 403,
+                message: `Userdata Delete-endpoint: Forbidden, you are not the owner of the account with id #${req.params.userId}`,
                 data: {}
-            })
+            });
         } else {
             logger.info(`User with token ${req.body.token} called delete userdata for: ${req.params.userId}`)
             let sqlStatement = `DELETE FROM \`user\` WHERE \`id\`=${req.params.userId}`;
