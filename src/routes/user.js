@@ -120,7 +120,7 @@ router.route('/')
                                     }
                                     if (results.length > 0) {
                                         logger.info(`User with id #${results[0].id} has been created`);
-                                        (results[0].isActive==true) ? results[0].isActive="true" : results[0].isActive="false"
+                                        (results[0].isActive==true) ? results[0].isActive=true : results[0].isActive=false
                                         res.status(201).json({
                                             status: 201,
                                             message: "Register-endpoint: Created, succesfully created a new user",
