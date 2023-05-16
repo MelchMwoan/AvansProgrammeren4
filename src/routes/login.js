@@ -1,16 +1,18 @@
 const express = require('express')
+var bodyParser = require('body-parser')
+var jsonParser = bodyParser.json()
 const router = express.Router()
 const logger = require('tracer').colorConsole();
 const Joi = require('joi');
 const mysqldatabase = require('../utils/mysql-db');
 const schema = Joi.object({
-    emailAdress: Joi.string().email().required(),
-    password: Joi.string().required()
+    emailAddress: Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}@[A-Z0-9]{2,}\.[A-Z]{2,3}$/i).required().messages({ 'string.pattern.base': `\"emailAddress\" must be a valid email` }),
+    password: Joi.string().pattern(/^(?=.*[0-9])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{8,}$/).required().messages({ 'string.pattern.base': `{:[.]} is not a valid password (at least 1 number and 1 capital, 8 minimum characters)` })
 })
 const jwt = require('jsonwebtoken');
 
-router.post('/', (req, res, next) => {
-    const result = schema.validate(req.query);
+router.post('/', jsonParser, (req, res, next) => {
+    const result = schema.validate(req.body);
     logger.debug("Received data for login: " + JSON.stringify(result.value))
     if (result.error != undefined) {
         logger.error(result.error.message)
@@ -20,7 +22,7 @@ router.post('/', (req, res, next) => {
             data: {}
         });
     } else {
-        let sqlStatement = `Select * FROM \`user\` WHERE \`emailAdress\`='${req.query.emailAdress}'`;
+        let sqlStatement = `Select * FROM \`user\` WHERE \`emailAddress\`='${req.body.emailAddress}'`;
         logger.debug(sqlStatement)
         mysqldatabase.getConnection(function (err, conn) {
             if (err) {
@@ -37,45 +39,44 @@ router.post('/', (req, res, next) => {
                         });
                     }
                     if (results.length == 0) {
-                        logger.error(`User with email ${req.query.emailAdress} does not exist`)
-                        res.status(403).json({
-                            status: 403,
-                            message: `Login-endpoint: Forbidden, user with email: '${req.query.emailAdress}' does not exist`,
+                        logger.error(`User with email ${req.body.emailAddress} does not exist`)
+                        res.status(404).json({
+                            status: 404,
+                            message: `Login-endpoint: Not Found, user with email: '${req.body.emailAddress}' does not exist`,
                             data: {}
                         });
                     } else {
-                        logger.debug(results[0].password)
-                        // sqlStatement = `INSERT INTO \`user\` (firstName,lastName,isActive,emailAdress,password,phoneNumber,street,city) VALUES ('${req.query.firstName}','${req.query.lastName}',${(req.query.isActive == undefined ? true : req.query.isActive)},'${req.query.emailAdress}','${req.query.password}','${req.query.phoneNumber}','${req.query.street}','${req.query.city}')`;
-                        // logger.debug(sqlStatement)
-                        // conn.query(sqlStatement, function (err, results, fields) {
-                        //     if (err) {
-                        //         logger.error(err.message);
-                        //         next({
-                        //             code: 409,
-                        //             message: err.message
-                        //         });
-                        //     }
-                        //     if (results.affectedRows > 0) {
-                        //         sqlStatement = `Select * FROM \`user\` WHERE \`id\`='${results.insertId}'`;
-                        //         conn.query(sqlStatement, function (err, results, fields) {
-                        //             if (err) {
-                        //                 logger.error(err.message);
-                        //                 next({
-                        //                     code: 409,
-                        //                     message: err.message
-                        //                 });
-                        //             }
-                        //             if (results.length > 0) {
-                        //                 logger.info(`User with id #${results[0].id} has been created`)
-                        //                 res.status(201).json({
-                        //                     status: 201,
-                        //                     message: "Register-endpoint: Created, succesfully created a new user",
-                        //                     data: results[0]
-                        //                 });
-                        //             }
-                        //         });
-                        //     }
-                        // });
+                        if (req.body.password == results[0].password) {
+                            let user = (({ password, ...o }) => o)(results[0]);
+                            const payload = {
+                                userId: user.id
+                            };
+                            jwt.sign(payload, process.env.jwtSecretKey, { expiresIn: '1d' }, (err, token) => {
+                                if(err) {
+                                    logger.error(`JWT Error: ${err}`)
+                                    res.status(409).json({
+                                        status: 409,
+                                        message: `Login-endpoint: JWT Error, please contact a server administrator`,
+                                        data: {}
+                                    });
+                                    
+                                }else {
+                                    logger.info(`User with email ${req.body.emailAddress} is succesfully logged in`)
+                                    res.status(200).json({
+                                        status: 200,
+                                        message: `Login-endpoint: OK, welcome ${results[0].firstName} ${results[0].lastName}`,
+                                        data: { user, token: token }
+                                    });
+                                }
+                            })
+                        } else {
+                            logger.error(`User with email ${req.body.emailAddress} tried to login with an invalid password`)
+                            res.status(400).json({
+                                status: 400,
+                                message: `Login-endpoint: Bad Request, invalid password`,
+                                data: {}
+                            });
+                        }
                     }
                 });
                 mysqldatabase.releaseConnection(conn);

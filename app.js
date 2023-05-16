@@ -19,6 +19,7 @@ app.use('*', (req, res, next) => {
     logger.log(`${req.method} request on ${req.originalUrl}`)
     next()
 })
+
 const login = require('./src/routes/login.js');
 app.use('/api/login', login);
 const user = require('./src/routes/user.js');
