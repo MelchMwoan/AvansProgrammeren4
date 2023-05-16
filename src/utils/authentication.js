@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 
 module.exports = {
     validateToken(req, res, next) {
-        console.log(req)
+        console.log(req.headers)
         const result = authorizationSchema.validate(req.headers.authorization);
         logger.debug("Checking token");
         if (result.error != undefined) {
