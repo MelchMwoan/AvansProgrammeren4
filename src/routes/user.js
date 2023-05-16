@@ -217,15 +217,20 @@ router.route('/:userId')
             }
         })
     })
-    .put(jsonParser, (req, res, next) => {
-        //TODO: Check ownership through token 403
-        //TODO: Check logged in
+    .put(authentication.validateToken, jsonParser, (req, res, next) => {
         const result = emailSchema.validate(req.body.emailAddress);
         if (result.error != undefined) {
             logger.error(result.error.message.replace("value", "emailAddress"))
             res.status(400).json({
                 status: 400,
                 message: `Userdata Update-endpoint: Bad Request, ${result.error.message.replace("value", "emailAddress")}`,
+                data: {}
+            });
+        } else if (req.userId != req.params.userId) {
+            logger.error(`${req.userId} tried to update data of ${req.params.userId}`)
+            res.status(403).json({
+                status: 403,
+                message: `Userdata Update-endpoint: Forbidden, you are not the owner of the account with id #${req.params.userId}`,
                 data: {}
             });
         } else {
