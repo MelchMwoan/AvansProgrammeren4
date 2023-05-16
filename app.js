@@ -19,9 +19,6 @@ app.use('*', (req, res, next) => {
     logger.log(`${req.method} request on ${req.originalUrl}`)
     next()
 })
-
-const register = require('./src/routes/register.js');
-app.use('/api/register', register);
 const login = require('./src/routes/login.js');
 app.use('/api/login', login);
 const user = require('./src/routes/user.js');
