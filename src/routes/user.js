@@ -7,10 +7,10 @@ const mysqldatabase = require('../utils/mysql-db');
 const Joi = require('joi');
 const authentication = require('../utils/authentication');
 const schema = Joi.object({
-    firstName: Joi.string().min(3).max(30).required(),
-    lastName: Joi.string().min(3).max(30).required(),
-    street: Joi.string().min(3).max(30).required(),
-    city: Joi.string().min(3).max(30).required(),
+    firstName: Joi.string().min(3).max(255).required(),
+    lastName: Joi.string().min(3).max(255).required(),
+    street: Joi.string().min(3).max(255).required(),
+    city: Joi.string().min(3).max(255).required(),
     isActive: Joi.boolean(),
     emailAddress: Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}@[A-Z0-9]{2,}\.[A-Z]{2,3}$/i).required().messages({ 'string.pattern.base': `\"emailAddress\" must be a valid email` }),
     emailAdress: Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}@[A-Z0-9]{2,}\.[A-Z]{2,3}$/i).messages({ 'string.pattern.base': `\"emailAddress\" must be a valid email` }),
@@ -18,10 +18,10 @@ const schema = Joi.object({
     phoneNumber: Joi.string().pattern(/^06[\s\-]?[0-9]{8}$/).required().messages({ 'string.pattern.base': `{:[.]} is not a valid phone number (starts with 06 and contains 10 digits in total)` })
 })
 const updateSchema = Joi.object({
-    firstName: Joi.string().min(3).max(30),
-    lastName: Joi.string().min(3).max(30),
-    street: Joi.string().min(3).max(30),
-    city: Joi.string().min(3).max(30),
+    firstName: Joi.string().min(3).max(255),
+    lastName: Joi.string().min(3).max(255),
+    street: Joi.string().min(3).max(255),
+    city: Joi.string().min(3).max(255),
     isActive: Joi.boolean(),
     emailAddress: Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}@[A-Z0-9]{2,}\.[A-Z]{2,3}$/i).required().messages({ 'string.pattern.base': `\"emailAddress\" must be a valid email` }),
     password: Joi.string().pattern(/^(?=.*[0-9])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{8,}$/).messages({ 'string.pattern.base': `{:[.]} is not a valid password (at least 1 number and 1 capital, 8 minimum characters)` }),
