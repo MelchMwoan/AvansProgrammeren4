@@ -26,6 +26,8 @@ const user = require('./src/routes/user.js');
 app.use('/api/user', user);
 const info = require('./src/routes/info.js');
 app.use('/api/info', info);
+const meal = require('./src/routes/meal.js');
+app.use('/api/meal', meal);
 
 app.use('*', (req, res) => {
     logger.error(`${req.method} request on ${req.originalUrl} was not found`)
