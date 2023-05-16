@@ -8,7 +8,15 @@ const dbconnection = require('../../src/utils/mysql-db.js');
 describe('Register UC-201', function () {
     it('TC-201-1-InputMissing', (done) => {
         //Testing for register with missing phoneNumber
-        chai.request(server).post("/api/user?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAddress=t.TC2011@UC201.nl&password=Testpassword1!").end((err, res) => {
+        const registerJson = {
+            firstName: "TC-201-1",
+            lastName: "TC-201-1",
+            street:"teststreet",
+            city:"testcity",
+            emailAddress:"t.TC2011@UC201.nl",
+            password:"Testpassword1!"
+        }
+        chai.request(server).post("/api/user").send(registerJson).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -21,7 +29,16 @@ describe('Register UC-201', function () {
     })
     it('TC-201-2-InvalidEmail', (done) => {
         //Testing for register with invalid email
-        chai.request(server).post("/api/user?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAddress=invalid&password=Testpassword1!&phoneNumber=06-12345678").end((err, res) => {
+        const registerJson = {
+            firstName: "TC-201-2",
+            lastName: "TC-201-2",
+            street:"teststreet",
+            city:"testcity",
+            emailAddress:"invalid",
+            password:"Testpassword1!",
+            phoneNumber:  "06-12345678"
+        }
+        chai.request(server).post("/api/user").send(registerJson).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -34,7 +51,16 @@ describe('Register UC-201', function () {
     })
     it('TC-201-3-InvalidPassword', (done) => {
         //Testing for register with invalid password
-        chai.request(server).post("/api/user?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAddress=t.TC2013@UC201.nl&password=invalid&phoneNumber=06-12345678").end((err, res) => {
+        const registerJson = {
+            firstName: "TC-201-3",
+            lastName: "TC-201-3",
+            street:"teststreet",
+            city:"testcity",
+            emailAddress:"t.TC2013@UC201.nl",
+            password:"invalid",
+            phoneNumber:  "06-12345678"
+        }
+        chai.request(server).post("/api/user").send(registerJson).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -46,8 +72,17 @@ describe('Register UC-201', function () {
         })
     })
     it('TC-201-4-UserAlreadyExists', (done) => {
-        //Testing for already existing user (email=henk.jan@mail.nl)
-        chai.request(server).post("/api/user?firstName=testfirst&lastName=testlast&street=teststreet&city=testcity&emailAddress=j.doe@server.com&password=Testpassword1!&phoneNumber=06-12345678").end((err, res) => {
+        //Testing for already existing user (email=j.doe@server.com)
+        const registerJson = {
+            firstName: "TC-201-4",
+            lastName: "TC-201-4",
+            street:"teststreet",
+            city:"testcity",
+            emailAddress:"j.doe@server.com",
+            password:"Testpassword1!",
+            phoneNumber:"06-12345678"
+        }
+        chai.request(server).post("/api/user").send(registerJson).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -60,7 +95,16 @@ describe('Register UC-201', function () {
     })
     it('TC-201-5-SuccesfullRegistration', (done) => {
         //Testing for succesfull registration
-        chai.request(server).post("/api/user?firstName=TC-201-5&lastName=TC-201-5&street=teststreet&city=testcity&emailAddress=t.TC20615@UC201.nl&password=Testpassword1!&phoneNumber=06-12345678").end((err, res) => {
+        const registerJson = {
+            firstName: "TC-201-5",
+            lastName: "TC-201-5",
+            street:"teststreet",
+            city:"testcity",
+            emailAddress:"t.TC2015@UC201.nl",
+            password:"Testpassword1!",
+            phoneNumber:"06-12345678"
+        }
+        chai.request(server).post("/api/user").send(registerJson).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;

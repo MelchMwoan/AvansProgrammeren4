@@ -20,7 +20,10 @@ describe('User Overview UC-202', function () {
     })
     it('TC-202-2-ShowNoUsersOnNonExistingSearchFields', (done) => {
         //Testing for at least two users with filters that are not existent
-        chai.request(server).get("/api/user?nonexistent=fake").end((err, res) => {
+        const filters = {
+            nonexistent: "fake"
+        };
+        chai.request(server).get("/api/user").send(filters).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -32,7 +35,10 @@ describe('User Overview UC-202', function () {
     })
     it('TC-202-3-ShowUsersIsActiveFalse', (done) => {
         //Testing for users that are not active with filter isActive=false
-        chai.request(server).get("/api/user?isActive=false").end((err, res) => {
+        let filters = {
+            isActive: false
+        };
+        chai.request(server).get("/api/user").send(filters).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -48,7 +54,10 @@ describe('User Overview UC-202', function () {
     })
     it('TC-202-4-ShowUsersIsActiveTrue', (done) => {
         //Testing for users that are active with filter isActive=true
-        chai.request(server).get("/api/user?isActive=true").end((err, res) => {
+        let filters = {
+            isActive: true
+        };
+        chai.request(server).get("/api/user").send(filters).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -64,7 +73,11 @@ describe('User Overview UC-202', function () {
     })
     it('TC-202-5-ShowUsersOnMultipleFilters', (done) => {
         //Testing for users that are active and life in "Breda" with filter isActive=true&city=Breda
-        chai.request(server).get("/api/user?isActive=true&city=Breda").end((err, res) => {
+        let filters = {
+            isActive: true,
+            city: "Breda"
+        };
+        chai.request(server).get("/api/user").send(filters).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
