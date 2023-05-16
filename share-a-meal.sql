@@ -107,14 +107,14 @@ CREATE TABLE `user` (
   `firstName` varchar(255) NOT NULL,
   `lastName` varchar(255) NOT NULL,
   `isActive` tinyint NOT NULL DEFAULT '1',
-  `emailAdress` varchar(255) NOT NULL,
+  `emailAddress` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `phoneNumber` varchar(255) DEFAULT '-',
   `roles` set('admin','editor','guest') NOT NULL DEFAULT 'editor,guest',
   `street` varchar(255) NOT NULL,
   `city` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `IDX_87877a938268391a71723b303c` (`emailAdress`)
+  UNIQUE KEY `IDX_87877a938268391a71723b303c` (`emailAddress`)
 ) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

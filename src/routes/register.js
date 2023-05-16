@@ -9,7 +9,7 @@ const schema = Joi.object({
     street: Joi.string().min(3).max(30).required(),
     city: Joi.string().min(3).max(30).required(),
     isActive: Joi.boolean(),
-    emailAdress: Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}@[A-Z0-9]{2,}\.[A-Z]{2,3}$/i).required().messages({ 'string.pattern.base': `\"emailAdress\" must be a valid email` }),
+    emailAddress: Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}@[A-Z0-9]{2,}\.[A-Z]{2,3}$/i).required().messages({ 'string.pattern.base': `\"emailAddress\" must be a valid email` }),
     password: Joi.string().pattern(/^(?=.*[0-9])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{8,}$/).required().messages({ 'string.pattern.base': `{:[.]} is not a valid password (at least 1 number and 1 capital, 8 minimum characters)` }),
     phoneNumber: Joi.string().pattern(/^06[\s\-]?[0-9]{8}$/).required().messages({ 'string.pattern.base': `{:[.]} is not a valid phone number (starts with 06 and contains 10 digits in total)` })
 })
@@ -25,7 +25,7 @@ router.post('/', (req, res, next) => {
             data: {}
         });
     } else {
-        let sqlStatement = `Select * FROM \`user\` WHERE \`emailAdress\`='${req.query.emailAdress}'`;
+        let sqlStatement = `Select * FROM \`user\` WHERE \`emailAddress\`='${req.query.emailAddress}'`;
         logger.debug(sqlStatement)
         mysqldatabase.getConnection(function (err, conn) {
             if (err) {
@@ -42,14 +42,14 @@ router.post('/', (req, res, next) => {
                         });
                     }
                     if (results.length != 0) {
-                        logger.error(`User with email ${req.query.emailAdress} already exists`)
+                        logger.error(`User with email ${req.query.emailAddress} already exists`)
                         res.status(403).json({
                             status: 403,
-                            message: `Register-endpoint: Forbidden, user with email: '${req.query.emailAdress}' already exists`,
+                            message: `Register-endpoint: Forbidden, user with email: '${req.query.emailAddress}' already exists`,
                             data: {}
                         });
                     } else {
-                        sqlStatement = `INSERT INTO \`user\` (firstName,lastName,isActive,emailAdress,password,phoneNumber,street,city) VALUES ('${req.query.firstName}','${req.query.lastName}',${(req.query.isActive == undefined ? true : req.query.isActive)},'${req.query.emailAdress}','${req.query.password}','${req.query.phoneNumber}','${req.query.street}','${req.query.city}')`;
+                        sqlStatement = `INSERT INTO \`user\` (firstName,lastName,isActive,emailAddress,password,phoneNumber,street,city) VALUES ('${req.query.firstName}','${req.query.lastName}',${(req.query.isActive == undefined ? true : req.query.isActive)},'${req.query.emailAddress}','${req.query.password}','${req.query.phoneNumber}','${req.query.street}','${req.query.city}')`;
                         logger.debug(sqlStatement)
                         conn.query(sqlStatement, function (err, results, fields) {
                             if (err) {
