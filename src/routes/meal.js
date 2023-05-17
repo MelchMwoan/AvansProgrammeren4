@@ -82,6 +82,10 @@ router.route('/')
                                     logger.info(`Meal with id #${results[0].id} has been created`);
                                     results[0].price = results[0].price.replace("'", '')
                                     results[0].price = parseFloat(results[0].price)
+                                    results[0].isActive = results[0].isActive == 1 ? true : false
+                                    results[0].isVega = results[0].isVega == 1 ? true : false
+                                    results[0].isVegan = results[0].isVegan == 1 ? true : false
+                                    results[0].isToTakeHome = results[0].isToTakeHome == 1 ? true : false
                                     res.status(201).json({
                                         status: 201,
                                         message: "Create Meal-endpoint: Created, succesfully created a new meal",

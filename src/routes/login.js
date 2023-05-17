@@ -63,6 +63,7 @@ router.post('/', jsonParser, (req, res, next) => {
                                 }else {
                                     logger.info(`User with email ${req.body.emailAddress} is succesfully logged in`)
                                     user.token = token;
+                                    user.isActive = user.isActive == 1 ? true : false;
                                     res.status(200).json({
                                         status: 200,
                                         message: `Login-endpoint: OK, welcome ${results[0].firstName} ${results[0].lastName}`,
