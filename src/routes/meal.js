@@ -6,6 +6,7 @@ const logger = require('tracer').colorConsole();
 const mysqldatabase = require('../utils/mysql-db');
 const Joi = require('joi').extend(require('@joi/date'));
 const authentication = require('../utils/authentication');
+const { array } = require('joi');
 const schema = Joi.object({
     name: Joi.string().min(3).max(200).required(),
     description: Joi.string().min(3).max(400).required(),
@@ -19,7 +20,19 @@ const schema = Joi.object({
     imageUrl: Joi.string().uri().max(255).required(),
     allergenes: Joi.array().items(Joi.string().valid('gluten', 'lactose', 'noten'))
 })
-
+const updateSchema = Joi.object({
+    name: Joi.string().min(3).max(200).required(),
+    description: Joi.string().min(3).max(400),
+    isActive: Joi.boolean(),
+    isVega: Joi.boolean(),
+    isVegan: Joi.boolean(),
+    isToTakeHome: Joi.boolean(),
+    dateTime: Joi.date().format('YYYY-MM-DD HH:mm:ss'),
+    maxAmountOfParticipants: Joi.number().integer().required(),
+    price: Joi.number().required(),
+    imageUrl: Joi.string().uri().max(255),
+    allergenes: Joi.array().items(Joi.string().valid('gluten', 'lactose', 'noten'))
+})
 router.route('/')
     .post(authentication.validateToken, jsonParser, (req, res, next) => {
         const result = schema.validate(req.body);
@@ -115,7 +128,6 @@ router.route('/')
                 mysqldatabase.releaseConnection(conn);
             }
         })
-
     })
 
 router.route('/:mealId')
@@ -163,5 +175,154 @@ router.route('/:mealId')
             }
         })
     })
-
+    .delete(authentication.validateToken, jsonParser, (req, res, next) => {
+        mysqldatabase.getConnection(function (err, conn) {
+            if (err) {
+                logger.error(`MySQL error: ${err}`);
+                next(`MySQL error: ${err.message}`)
+            }
+            if (conn) {
+                let sqlStatement = `SELECT * FROM \`meal\` WHERE \`id\`=${req.params.mealId}`
+                conn.query(sqlStatement, function (err, results, fields) {
+                    if (err) {
+                        logger.error(err.message);
+                        next({
+                            code: 409,
+                            message: err.message
+                        });
+                    } else if (results.length == 0) {
+                        logger.error(`Meal with id #${req.params.mealId} does not exist`)
+                        res.status(404).json({
+                            status: 404,
+                            message: `Mealdata Delete-endpoint: Not Found, Meal with ID #${req.params.mealId} not found`,
+                            data: {}
+                        });
+                    } else {
+                        if (req.userId != results[0].cookId) {
+                            logger.error(`${req.userId} tried to delete meal #${req.params.mealId} of ${results[0].cookId}`)
+                            res.status(403).json({
+                                status: 403,
+                                message: `Mealdata Delete-endpoint: Forbidden, you are not the cook of the meal with id #${req.params.mealId}`,
+                                data: {}
+                            });
+                        } else {
+                            logger.info(`User #${req.userId} called delete meal for: ${req.params.mealId}`)
+                            let sqlStatement = `DELETE FROM \`meal\` WHERE \`id\`=${req.params.mealId}`;
+                            logger.debug(sqlStatement)
+                            conn.query(sqlStatement, function (err, results, fields) {
+                                if (err) {
+                                    logger.error(err.message);
+                                    next({
+                                        code: 409,
+                                        message: err.message
+                                    });
+                                } else {
+                                    logger.info(`Meal with ID #${req.params.mealId} succesfully deleted`)
+                                    res.status(200).json({
+                                        status: 200,
+                                        message: `Mealdata Delete-endpoint: Meal with ID #${req.params.mealId} succesfully deleted`,
+                                        data: {}
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+                mysqldatabase.releaseConnection(conn);
+            }
+        })
+    })
+    .put(authentication.validateToken, jsonParser, (req, res, next) => {
+        const result = updateSchema.validate(req.body);
+        if (result.error != undefined) {
+            logger.error(result.error.message)
+            res.status(400).json({
+                status: 400,
+                message: `Mealdata Update-endpoint: Bad Request, ${result.error.message}`,
+                data: {}
+            });
+        } else {
+            logger.info(`User #${req.userId} called update mealdata for: ${req.params.mealId}`)
+            let sqlStatement = `Select * FROM \`meal\` WHERE \`id\`=${req.params.mealId} `;
+            logger.debug(sqlStatement)
+            mysqldatabase.getConnection(function (err, conn) {
+                if (err) {
+                    logger.error(`MySQL error: ${err}`);
+                    next(`MySQL error: ${err.message}`)
+                }
+                if (conn) {
+                    conn.query(sqlStatement, function (err, results, fields) {
+                        if (err) {
+                            logger.error(err.message);
+                            next({
+                                code: 409,
+                                message: err.message
+                            });
+                        } else if (results.length != 0) {
+                            if (req.userId != results[0].cookId) {
+                                logger.error(`${req.userId} tried to update mealdata of #${req.params.mealId}, cookId: ${results[0].cookId}`)
+                                res.status(403).json({
+                                    status: 403,
+                                    message: `Mealdata Update-endpoint: Forbidden, you are not the cook of the meal with id #${req.params.mealId}`,
+                                    data: {}
+                                });
+                            } else {
+                                logger.info(`Found meal with id #${req.params.mealId}`);
+                                let meal = results[0]
+                                let sqlStatement = `UPDATE \`meal\` SET`;
+                                for (let [key, value] of Object.entries(req.body)) {
+                                    if (meal[key] != undefined) {
+                                        logger.debug(`Changing ${key} for #${req.params.mealId} from ${meal[key]} to ${value}`)
+                                        meal[key] = value;
+                                        if (!['isActive', 'isVega', 'isVegan', 'isToTakeHome'].includes(key)) {
+                                            value = `'${value}'`
+                                        }
+                                        if (!sqlStatement.endsWith("SET")) {
+                                            sqlStatement += `, \`${key}\` = ${value}`;
+                                        } else {
+                                            sqlStatement += ` \`${key}\` = ${value}`;
+                                        }
+                                    } else {
+                                        logger.warn(`Key ${key} is not applicable to Meal`)
+                                    }
+                                }
+                                sqlStatement += ` WHERE \`id\`=${req.params.mealId}`;
+                                logger.debug(sqlStatement)
+                                conn.query(sqlStatement, function (err, results, fields) {
+                                    if (err) {
+                                        logger.error(err.message);
+                                        next({
+                                            code: 409,
+                                            message: err.message
+                                        });
+                                    } else {
+                                        sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${meal.cookId}`
+                                        conn.execute(sqlStatement, function (err, results2, fields) {
+                                            meal.cook = (({ password, ...o }) => o)(results2[0])
+                                            meal = (({ cookId, ...o }) => o)(meal)
+                                            //TODO: optimize
+                                            //TODO: participants
+                                            res.status(200).json({
+                                                status: 200,
+                                                message: `Mealdata Update-endpoint: Meal with Id #${req.params.mealId} was succesfully updated`,
+                                                data: meal
+                                            });
+                                        })
+                                    }
+                                });
+                            }
+                        } else {
+                            logger.error(`Meal with id #${req.params.mealId}`)
+                            res.status(404).json({
+                                status: 404,
+                                message: `Mealdata Update-endpoint: Not Found, Meal with id #${req.params.mealId}`,
+                                data: {}
+                            });
+                        }
+                    });
+                    mysqldatabase.releaseConnection(conn);
+                }
+            })
+        }
+    })
 module.exports = router;
