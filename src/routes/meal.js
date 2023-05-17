@@ -233,7 +233,7 @@ router.route('/:mealId')
                                     logger.info(`Meal with ID #${req.params.mealId} succesfully deleted`)
                                     res.status(200).json({
                                         status: 200,
-                                        message: `Mealdata Delete-endpoint: Meal with ID #${req.params.mealId} succesfully deleted`,
+                                        message: `Maaltijd met ID ${req.params.mealId} is verwijderd`,
                                         data: {}
                                     });
                                 }

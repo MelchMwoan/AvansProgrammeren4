@@ -374,7 +374,7 @@ router.route('/:userId')
                                             logger.info(`User with ID #${req.params.userId} succesfully deleted`)
                                             res.status(200).json({
                                                 status: 200,
-                                                message: `Userdata Delete-endpoint: User with ID #${req.params.userId} succesfully deleted`,
+                                                message: `Gebruiker met ID ${req.params.userId} is verwijderd`,
                                                 data: {}
                                             });
                                         }
