@@ -468,5 +468,72 @@ router.route('/:mealId/participate')
             }
         })
     })
-router.route('/:mealId/participants')
+router.get('/:mealId/participants', authentication.validateToken, jsonParser, (req, res, next) => {
+
+})
+router.get('/:mealId/participants/:participantId', authentication.validateToken, jsonParser, (req, res, next) => {
+    let sqlStatement = `SELECT * FROM \`meal\` WHERE \`id\`=${req.params.mealId}`;
+    logger.debug(sqlStatement)
+    mysqldatabase.getConnection(function (err, conn) {
+        if (err) {
+            logger.error(`MySQL error: ${err}`);
+            next(`MySQL error: ${err.message}`)
+        }
+        if (conn) {
+            conn.query(sqlStatement, function (err, results, fields) {
+                if (err) {
+                    logger.error(err.message);
+                    next({
+                        code: 409,
+                        message: err.message
+                    });
+                } else if (results.length != 0) {
+                    if(req.userId == results[0].cookId) {
+                        let sqlStatement = "SELECT * FROM `user` WHERE `id`=" + req.params.participantId;
+                        logger.debug(sqlStatement)
+                        conn.query(sqlStatement, function (err, results, fields) {
+                            if (err) {
+                                logger.error(err.message);
+                                next({
+                                    code: 409,
+                                    message: err.message
+                                });
+                            } else if (results.length != 0) {
+                                logger.info(`Found user with id #${req.params.participantId}`);
+                                res.status(200).json({
+                                    status: 200,
+                                    message: `ParticipantDetail-endpoint: Found user with id #${req.params.participantId}`,
+                                    data: (({password, ...o}) => o)(results[0])
+                                });
+                            } else {
+                                logger.error(`User with id #${req.params.participantId} does not exist`)
+                                res.status(404).json({
+                                    status: 404,
+                                    message: `ParticipantDetail-endpoint: Not Found, User with id #${req.params.participantId} does not exist`,
+                                    data: {}
+                                });
+                            }
+                        })
+                    } else {
+                        logger.error(`User with id #${req.userId} is not the cook of meal with id #${req.params.mealId}`)
+                        res.status(401).json({
+                            status: 401,
+                            message: `ParticipantDetail-endpoint: User with id #${req.userId} is not the cook of meal with id #${req.params.mealId}`,
+                            data: {}
+                        });
+                    }
+                } else {
+                    logger.error(`Meal with id #${req.params.mealId} does not exist`)
+                    res.status(404).json({
+                        status: 404,
+                        message: `ParticipantDetail-endpoint: Not Found, Meal with id #${req.params.mealId} does not exist`,
+                        data: {}
+                    });
+                }
+            });
+            mysqldatabase.releaseConnection(conn);
+        }
+    })
+})
+
 module.exports = router;
