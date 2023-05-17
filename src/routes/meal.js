@@ -53,7 +53,7 @@ router.route('/')
                 data: {}
             });
         } else {
-            let sqlStatement = `INSERT INTO \`meal\` (isActive,isVega,isVegan,isToTakeHome,dateTime,maxAmountOfParticipants,price,imageUrl,cookId,createDate,updateDate,name,description,allergenes) VALUES (${req.body.isActive == undefined ? true : req.body.isActive},${req.body.isVega == undefined ? false : req.body.isVega},${req.body.isVegan == undefined ? false : req.body.isVegan},${req.body.isToTakeHome == undefined ? false : req.body.isToTakeHome},FROM_UNIXTIME(${req.body.dateTime}),${req.body.maxAmountOfParticipants},${req.body.price},'${req.body.imageUrl}',${req.userId},FROM_UNIXTIME(${parseInt(new Date().getTime() / 1000)}),FROM_UNIXTIME(${parseInt(new Date().getTime() / 1000)}),'${req.body.name}','${req.body.description}',${req.body.allergenes == undefined ? "''" : "'"+req.body.allergenes+"'"})`;
+            let sqlStatement = `INSERT INTO \`meal\` (isActive,isVega,isVegan,isToTakeHome,dateTime,maxAmountOfParticipants,price,imageUrl,cookId,createDate,updateDate,name,description,allergenes) VALUES (${req.body.isActive == undefined ? true : req.body.isActive},${req.body.isVega == undefined ? false : req.body.isVega},${req.body.isVegan == undefined ? false : req.body.isVegan},${req.body.isToTakeHome == undefined ? false : req.body.isToTakeHome},FROM_UNIXTIME(${req.body.dateTime}),${req.body.maxAmountOfParticipants},${req.body.price},'${req.body.imageUrl}',${req.userId},FROM_UNIXTIME(${parseInt(new Date().getTime() / 1000)}),FROM_UNIXTIME(${parseInt(new Date().getTime() / 1000)}),'${req.body.name}','${req.body.description}',${req.body.allergenes == undefined ? "''" : "'" + req.body.allergenes + "'"})`;
             logger.debug(sqlStatement)
             mysqldatabase.getConnection(function (err, conn) {
                 if (err) {
@@ -299,7 +299,7 @@ router.route('/:mealId')
                                         meal[key] = value;
                                         if (!['isActive', 'isVega', 'isVegan', 'isToTakeHome', 'dateTime'].includes(key)) {
                                             value = `'${value}'`
-                                        } else if(key =='dateTime') {
+                                        } else if (key == 'dateTime') {
                                             value = `FROM_UNIXTIME(${value})`
                                         }
                                         if (!sqlStatement.endsWith("SET")) {
@@ -351,4 +351,76 @@ router.route('/:mealId')
             })
         }
     })
+
+router.route('/:mealId/participate')
+    .post(authentication.validateToken, jsonParser, (req, res, next) => {
+        let sqlStatement = `Select * FROM \`meal\` WHERE \`id\`=${req.params.mealId} `;
+        logger.debug(sqlStatement)
+        mysqldatabase.getConnection(function (err, conn) {
+            if (err) {
+                logger.error(`MySQL error: ${err}`);
+                next(`MySQL error: ${err.message}`)
+            }
+            if (conn) {
+                conn.query(sqlStatement, function (err, results, fields) {
+                    if (err) {
+                        logger.error(err.message);
+                        next({
+                            code: 409,
+                            message: err.message
+                        });
+                    } else if (results.length != 0) {
+                        logger.info(`Found meal with id #${req.params.mealId}`);
+                        let meal = results[0]
+                        sqlStatement = `SELECT * FROM \`meal_participants_user\` WHERE \`mealId\`=${req.params.mealId}`;
+                        conn.query(sqlStatement, function (err, results, fields) {
+                            if (err) {
+                                logger.error(err.message);
+                                next({
+                                    code: 409,
+                                    message: err.message
+                                });
+                            } else {
+                                let participants = results
+                                if (participants.length < meal.maxParticipants) {
+                                    sqlStatement = `INSERT INTO \`meal_participants_user\` (\`mealId\`, \`userId\`) VALUES (${req.params.mealId}, ${req.userId})`;
+                                    conn.query(sqlStatement, function (err, results, fields) {
+                                        if (err) {
+                                            logger.error(err.message);
+                                            next({
+                                                code: 409,
+                                                message: err.message
+                                            });
+                                        } else {
+                                            res.status(200).json({
+                                                status: 200,
+                                                message: `User met ID #${req.userId} is aangemeld voor maaltijd met ID #${req.params.mealId}`,
+                                                data: {}
+                                            });
+                                        }
+                                    });
+                                } else {
+                                    res.status(409).json({
+                                        status: 409,
+                                        message: `Meal Participate-endpoint: Meal with Id #${req.params.mealId} is already full`,
+                                        data: {}
+                                    });
+                                }
+                            }
+                        })
+                    } else {
+                        logger.error(`Meal with id #${req.params.mealId} does not exist`)
+                        res.status(404).json({
+                            status: 404,
+                            message: `Meal Participate-endpoint: Not Found, Meal with id #${req.params.mealId} does not exist`,
+                            data: {}
+                        });
+                    }
+                });
+                mysqldatabase.releaseConnection(conn);
+            }
+        })
+    })
+    .delete(authentication.validateToken, jsonParser, (req, res, next) => { })
+router.route('/:mealId/participants')
 module.exports = router;
