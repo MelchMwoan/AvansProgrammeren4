@@ -21,7 +21,7 @@ app.use('*', (req, res, next) => {
 })
 
 const login = require('./src/routes/login.js');
-app.use('/api/login', login);
+app.use('/api/auth/login', login);
 const user = require('./src/routes/user.js');
 app.use('/api/user', user);
 const info = require('./src/routes/info.js');
