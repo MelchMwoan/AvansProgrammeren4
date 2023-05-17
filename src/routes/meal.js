@@ -118,4 +118,50 @@ router.route('/')
 
     })
 
+router.route('/:mealId')
+    .get(jsonParser, (req, res, next) => {
+        let sqlStatement = `Select * FROM \`meal\` WHERE \`id\`=${req.params.mealId}`;
+        logger.debug(sqlStatement)
+        mysqldatabase.getConnection(function (err, conn) {
+            if (err) {
+                logger.error(`MySQL error: ${err}`);
+                next(`MySQL error: ${err.message}`)
+            }
+            if (conn) {
+                conn.query(sqlStatement, function (err, results, fields) {
+                    if (err) {
+                        logger.error(err.message);
+                        next({
+                            code: 200,
+                            message: err.message,
+                            data: []
+                        });
+                    } else if (results.length != 0) {
+                        logger.info(`Found meal with id #${req.params.mealId}`);
+                        sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${results[0].cookId}`
+                        conn.execute(sqlStatement, function (err, results2, fields) {
+                            results[0].cook = (({ password, ...o }) => o)(results2[0])
+                            results[0] = (({ cookId, ...o }) => o)(results[0])
+                            //TODO: optimize
+                            //TODO: participants
+                            res.status(200).json({
+                                status: 200,
+                                message: "Mealdata-endpoint",
+                                data: results[0]
+                            });
+                        })
+                    } else {
+                        logger.error(`Meal with id #${req.params.mealId} does not exist`)
+                        res.status(404).json({
+                            status: 404,
+                            message: `Mealdata-endpoint: Not Found, Meal with ID #${req.params.mealId} not found`,
+                            data: {}
+                        });
+                    }
+                });
+                mysqldatabase.releaseConnection(conn);
+            }
+        })
+    })
+
 module.exports = router;
