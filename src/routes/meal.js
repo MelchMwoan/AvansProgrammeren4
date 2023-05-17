@@ -17,7 +17,7 @@ const schema = Joi.object({
     maxAmountOfParticipants: Joi.number().integer().required(),
     price: Joi.number().required(),
     imageUrl: Joi.string().uri().max(255).required(),
-    allergenes: Joi.array().items(Joi.string().valid('gluten','lactose','noten'))
+    allergenes: Joi.array().items(Joi.string().valid('gluten', 'lactose', 'noten'))
 })
 
 router.route('/')
@@ -32,7 +32,7 @@ router.route('/')
                 data: {}
             });
         } else {
-            let sqlStatement = `INSERT INTO \`meal\` (isActive,isVega,isVegan,isToTakeHome,dateTime,maxAmountOfParticipants,price,imageUrl,cookId,createDate,updateDate,name,description,allergenes) VALUES (${req.body.isActive == undefined ? true : req.body.isActive},${req.body.isVega == undefined ? false : req.body.isVega},${req.body.isVegan == undefined ? false : req.body.isVegan},${req.body.isToTakeHome == undefined ? false : req.body.isToTakeHome},FROM_UNIXTIME(${req.body.dateTime}),${req.body.maxAmountOfParticipants},${req.body.price},'${req.body.imageUrl}',${req.userId},FROM_UNIXTIME(${req.body.createDate == undefined ? parseInt(new Date().getTime()/1000) : req.body.createDate}),FROM_UNIXTIME(${req.body.updateDate == undefined ? parseInt(new Date().getTime()/1000) : req.body.updateDate}),'${req.body.name}','${req.body.description}',${req.body.allergenes == undefined ? "''" : req.body.allergenes})`;
+            let sqlStatement = `INSERT INTO \`meal\` (isActive,isVega,isVegan,isToTakeHome,dateTime,maxAmountOfParticipants,price,imageUrl,cookId,createDate,updateDate,name,description,allergenes) VALUES (${req.body.isActive == undefined ? true : req.body.isActive},${req.body.isVega == undefined ? false : req.body.isVega},${req.body.isVegan == undefined ? false : req.body.isVegan},${req.body.isToTakeHome == undefined ? false : req.body.isToTakeHome},FROM_UNIXTIME(${req.body.dateTime}),${req.body.maxAmountOfParticipants},${req.body.price},'${req.body.imageUrl}',${req.userId},FROM_UNIXTIME(${req.body.createDate == undefined ? parseInt(new Date().getTime() / 1000) : req.body.createDate}),FROM_UNIXTIME(${req.body.updateDate == undefined ? parseInt(new Date().getTime() / 1000) : req.body.updateDate}),'${req.body.name}','${req.body.description}',${req.body.allergenes == undefined ? "''" : req.body.allergenes})`;
             logger.debug(sqlStatement)
             mysqldatabase.getConnection(function (err, conn) {
                 if (err) {
@@ -73,6 +73,49 @@ router.route('/')
                 }
             })
         }
+    })
+    .get(jsonParser, (req, res, next) => {
+        let sqlStatement = 'Select * FROM `meal`';
+        logger.debug(sqlStatement)
+        mysqldatabase.getConnection(function (err, conn) {
+            if (err) {
+                logger.error(`MySQL error: ${err}`);
+                next(`MySQL error: ${err.message}`)
+            }
+            if (conn) {
+                conn.query(sqlStatement, function (err, results, fields) {
+                    if (err) {
+                        logger.error(err.message);
+                        next({
+                            code: 200,
+                            message: err.message,
+                            data: []
+                        });
+                    } else if (results) {
+                        let size = results.length
+                        logger.info(`Found ${size} results`);
+                        for (let i = 0; i < size; i++) {
+                            sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${results[i].cookId}`
+                            conn.execute(sqlStatement, function (err, results2, fields) {
+                                results[i].cook = (({ password, ...o }) => o)(results2[0])
+                                results[i] = (({ cookId, ...o }) => o)(results[i])
+                                //TODO: optimize
+                                //TODO: participants
+                                if (i + 1 == size) {
+                                    res.status(200).json({
+                                        status: 200,
+                                        message: "All Meals-endpoint",
+                                        data: results
+                                    });
+                                }
+                            })
+                        }
+                    }
+                });
+                mysqldatabase.releaseConnection(conn);
+            }
+        })
+
     })
 
 module.exports = router;
