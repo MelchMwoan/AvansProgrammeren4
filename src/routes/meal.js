@@ -382,7 +382,7 @@ router.route('/:mealId/participate')
                                 });
                             } else {
                                 let participants = results
-                                if (participants.length < meal.maxParticipants) {
+                                if (participants.length < meal.maxAmountOfParticipants) {
                                     sqlStatement = `INSERT INTO \`meal_participants_user\` (\`mealId\`, \`userId\`) VALUES (${req.params.mealId}, ${req.userId})`;
                                     conn.query(sqlStatement, function (err, results, fields) {
                                         if (err) {
@@ -400,8 +400,8 @@ router.route('/:mealId/participate')
                                         }
                                     });
                                 } else {
-                                    res.status(409).json({
-                                        status: 409,
+                                    res.status(200).json({
+                                        status: 200,
                                         message: `Meal Participate-endpoint: Meal with Id #${req.params.mealId} is already full`,
                                         data: {}
                                     });
