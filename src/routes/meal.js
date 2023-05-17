@@ -86,10 +86,23 @@ router.route('/')
                                     results[0].isVega = results[0].isVega == 1 ? true : false
                                     results[0].isVegan = results[0].isVegan == 1 ? true : false
                                     results[0].isToTakeHome = results[0].isToTakeHome == 1 ? true : false
-                                    res.status(201).json({
-                                        status: 201,
-                                        message: "Create Meal-endpoint: Created, succesfully created a new meal",
-                                        data: results[0]
+                                    let sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${results[0].cookId} `;
+                                    conn.query(sqlStatement, function (err, results2, fields) {
+                                        if (err) {
+                                            logger.error(err.message);
+                                            next({
+                                                code: 409,
+                                                message: err.message
+                                            });
+                                        } else {
+                                            results[0].cook = (({ password, ...o }) => o)(results2[0])
+                                            results[0].participants = []
+                                            res.status(201).json({
+                                                status: 201,
+                                                message: "Create Meal-endpoint: Created, succesfully created a new meal",
+                                                data: (({ cookId, ...o }) => o)(results[0])
+                                            });
+                                        }
                                     });
                                 }
                             });
@@ -125,16 +138,21 @@ router.route('/')
                             conn.execute(sqlStatement, function (err, results2, fields) {
                                 results[i].cook = (({ password, ...o }) => o)(results2[0])
                                 results[i] = (({ cookId, ...o }) => o)(results[i])
-                                //TODO: optimize
-                                //TODO: participants
                                 results[i].price = parseFloat(results[i].price)
-                                if (i + 1 == size) {
-                                    res.status(200).json({
-                                        status: 200,
-                                        message: "All Meals-endpoint",
-                                        data: results
+                                results[i].participants = []
+                                let sqlStatement = `Select * FROM \`meal_participants_user\` LEFT JOIN \`user\` on user.id = meal_participants_user.userId WHERE \`mealId\`=${results[i].id}`
+                                conn.execute(sqlStatement, function (err, results3, fields) {
+                                    results3.forEach(element => {
+                                        results[i].participants.push((({ password, userId, mealId, ...o }) => o)(element))
                                     });
-                                }
+                                    if (i + 1 == size) {
+                                        res.status(200).json({
+                                            status: 200,
+                                            message: "All Meals-endpoint",
+                                            data: results
+                                        });
+                                    }
+                                })
                             })
                         }
                     } else {
@@ -180,13 +198,20 @@ router.route('/:mealId')
                             results[0].isVegan = results[0].isVegan == 1 ? true : false
                             results[0].isToTakeHome = results[0].isToTakeHome == 1 ? true : false
                             results[0].price = parseFloat(results[0].price)
-                            //TODO: optimize
-                            //TODO: participants
-                            res.status(200).json({
-                                status: 200,
-                                message: "Mealdata-endpoint",
-                                data: results[0]
-                            });
+                            results[0].participants = []
+                            let sqlStatement = `Select * FROM \`meal_participants_user\` LEFT JOIN \`user\` on user.id = meal_participants_user.userId WHERE \`mealId\`=${results[0].id}`
+                            conn.execute(sqlStatement, function (err, results3, fields) {
+                                results3.forEach(element => {
+                                    results[0].participants.push((({ password, userId, mealId, ...o }) => o)(element))
+                                });
+                                if (results[0].participants.length == results3.length) {
+                                    res.status(200).json({
+                                        status: 200,
+                                        message: "Mealdata-endpoint",
+                                        data: results[0]
+                                    });
+                                }
+                            })
                         })
                     } else {
                         logger.error(`Meal with id #${req.params.mealId} does not exist`)
@@ -324,7 +349,6 @@ router.route('/:mealId')
                                         logger.warn(`Key ${key} is not applicable to Meal`)
                                     }
                                 }
-                                //TODO: update return data
                                 sqlStatement += `, \`updateDate\`=FROM_UNIXTIME(${parseInt(new Date().getTime() / 1000)}) WHERE \`id\`=${req.params.mealId}`;
                                 logger.debug(sqlStatement)
                                 conn.query(sqlStatement, function (err, results, fields) {
@@ -339,14 +363,27 @@ router.route('/:mealId')
                                         conn.execute(sqlStatement, function (err, results2, fields) {
                                             meal.cook = (({ password, ...o }) => o)(results2[0])
                                             meal = (({ cookId, ...o }) => o)(meal)
-                                            //TODO: optimize
-                                            //TODO: participants
                                             meal.price = parseFloat(meal.price)
-                                            res.status(200).json({
-                                                status: 200,
-                                                message: `Mealdata Update-endpoint: Meal with Id #${req.params.mealId} was succesfully updated`,
-                                                data: meal
-                                            });
+                                            meal.dateTime = new Date(meal.dateTime)
+                                            meal.isActive = meal.isActive == 1 ? true : false
+                                            meal.isVega = meal.isVega == 1 ? true : false
+                                            meal.isVegan = meal.isVegan == 1 ? true : false
+                                            meal.isToTakeHome = meal.isToTakeHome == 1 ? true : false
+                                            meal.participants = [];
+                                            let sqlStatement = `Select * FROM \`meal_participants_user\` LEFT JOIN \`user\` on user.id = meal_participants_user.userId WHERE \`mealId\`=${meal.id}`
+                                            logger.debug(sqlStatement)
+                                            conn.execute(sqlStatement, function (err, results3, fields) {
+                                                results3.forEach(element => {
+                                                    meal.participants.push((({ password, userId, mealId, ...o }) => o)(element))
+                                                });
+                                                if (meal.participants.length == results3.length) {
+                                                    res.status(200).json({
+                                                        status: 200,
+                                                        message: `Mealdata Update-endpoint: Meal with Id #${req.params.mealId} was succesfully updated`,
+                                                        data: meal
+                                                    });
+                                                }
+                                            })
                                         })
                                     }
                                 });
@@ -417,14 +454,36 @@ router.route('/:mealId/participate')
                                                 } else {
                                                     logger.info(`User met ID #${req.userId} is aangemeld voor maaltijd met ID #${req.params.mealId}`)
                                                     meal.price = parseFloat(meal.price)
-                                                    res.status(200).json({
-                                                        status: 200,
-                                                        message: `User met ID #${req.userId} is aangemeld voor maaltijd met ID #${req.params.mealId}`,
-                                                        data: {
-                                                            user: (({ password, ...o }) => o)(results2[0]),
-                                                            meal: meal
-                                                        }
-                                                    });
+                                                    user = (({ password, ...o }) => o)(results2[0])
+                                                    user.isActive = user.isActive == 1 ? true : false
+                                                    meal.isActive = meal.isActive == 1 ? true : false
+                                                    meal.isVega = meal.isVega == 1 ? true : false
+                                                    meal.isVegan = meal.isVegan == 1 ? true : false
+                                                    meal.isToTakeHome = meal.isToTakeHome == 1 ? true : false
+                                                    let sqlStatement = `SELECT * FROM \`user\` WHERE \`id\`=${meal.cookId}`
+                                                    conn.execute(sqlStatement, function (err, results2, fields) {
+                                                        meal.cook = (({ password, ...o }) => o)(results2[0])
+                                                        meal.cook.isActive = meal.cook.isActive == 1 ? true : false
+                                                        meal = (({ cookId, ...o }) => o)(meal)
+                                                        meal.participants = [];
+                                                        sqlStatement = `Select * FROM \`meal_participants_user\` LEFT JOIN \`user\` on user.id = meal_participants_user.userId WHERE \`mealId\`=${meal.id}`
+                                                        conn.execute(sqlStatement, function (err, results3, fields) {
+                                                            results3.forEach(element => {
+                                                                element.isActive = element.isActive == 1 ? true : false
+                                                                meal.participants.push((({ password, userId, mealId, ...o }) => o)(element))
+                                                            });
+                                                            if (meal.participants.length == results3.length) {
+                                                                res.status(200).json({
+                                                                    status: 200,
+                                                                    message: `User met ID #${req.userId} is aangemeld voor maaltijd met ID #${req.params.mealId}`,
+                                                                    data: {
+                                                                        user: user,
+                                                                        meal: meal
+                                                                    }
+                                                                });
+                                                            }
+                                                        })
+                                                    })
                                                 }
                                             })
                                         }
