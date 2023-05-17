@@ -53,7 +53,7 @@ describe('Update User Details By Id UC-205', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(404)
-            message.should.be.a("string").that.contains("Userdata Update-endpoint: Not Found, User with id #8 and email u.notexists@server.com not found");
+            message.should.be.a("string").that.contains("Userdata Update-endpoint: Not Found, User with id #8 not found");
             data.should.be.an("object");
             data.should.be.empty;
             done();
