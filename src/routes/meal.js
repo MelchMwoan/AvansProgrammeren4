@@ -43,6 +43,7 @@ router.route('/')
         } catch (error) {
             console.log(error)
         }
+        console.log(req.body.allergenes)
         const result = schema.validate(req.body);
         logger.debug("Received data for create meal: " + JSON.stringify(result.value))
         if (result.error != undefined) {
@@ -53,7 +54,7 @@ router.route('/')
                 data: {}
             });
         } else {
-            let sqlStatement = `INSERT INTO \`meal\` (isActive,isVega,isVegan,isToTakeHome,dateTime,maxAmountOfParticipants,price,imageUrl,cookId,createDate,updateDate,name,description,allergenes) VALUES (${req.body.isActive == undefined ? true : req.body.isActive},${req.body.isVega == undefined ? false : req.body.isVega},${req.body.isVegan == undefined ? false : req.body.isVegan},${req.body.isToTakeHome == undefined ? false : req.body.isToTakeHome},FROM_UNIXTIME(${req.body.dateTime}),${req.body.maxAmountOfParticipants},${req.body.price},'${req.body.imageUrl}',${req.userId},FROM_UNIXTIME(${parseInt(new Date().getTime() / 1000)}),FROM_UNIXTIME(${parseInt(new Date().getTime() / 1000)}),'${req.body.name}','${req.body.description}',${req.body.allergenes == undefined ? "''" : req.body.allergenes})`;
+            let sqlStatement = `INSERT INTO \`meal\` (isActive,isVega,isVegan,isToTakeHome,dateTime,maxAmountOfParticipants,price,imageUrl,cookId,createDate,updateDate,name,description,allergenes) VALUES (${req.body.isActive == undefined ? true : req.body.isActive},${req.body.isVega == undefined ? false : req.body.isVega},${req.body.isVegan == undefined ? false : req.body.isVegan},${req.body.isToTakeHome == undefined ? false : req.body.isToTakeHome},FROM_UNIXTIME(${req.body.dateTime}),${req.body.maxAmountOfParticipants},${req.body.price},'${req.body.imageUrl}',${req.userId},FROM_UNIXTIME(${parseInt(new Date().getTime() / 1000)}),FROM_UNIXTIME(${parseInt(new Date().getTime() / 1000)}),'${req.body.name}','${req.body.description}',${req.body.allergenes == undefined ? "''" : "'"+req.body.allergenes+"'"})`;
             logger.debug(sqlStatement)
             mysqldatabase.getConnection(function (err, conn) {
                 if (err) {
