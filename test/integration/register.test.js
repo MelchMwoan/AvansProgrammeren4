@@ -6,15 +6,15 @@ chai.use(chaiHttp);
 const jwt = require('jsonwebtoken');
 
 describe('Register UC-201', function () {
-    it('TC-201-1-InputMissing', (done) => {
+    it('TC-201-1-RequiredFieldMissing', (done) => {
         //Testing for register with missing phoneNumber
         const registerJson = {
             firstName: "TC-201-1",
             lastName: "TC-201-1",
-            street:"teststreet",
-            city:"testcity",
-            emailAddress:"t.TC2011@UC201.nl",
-            password:"Testpassword1!"
+            street: "teststreet",
+            city: "testcity",
+            emailAddress: "t.TC2011@UC201.nl",
+            password: "Testpassword1!"
         }
         chai.request(server).post("/api/user").send(registerJson).end((err, res) => {
             res.body.should.be.an("object");
@@ -32,11 +32,11 @@ describe('Register UC-201', function () {
         const registerJson = {
             firstName: "TC-201-2",
             lastName: "TC-201-2",
-            street:"teststreet",
-            city:"testcity",
-            emailAddress:"invalid",
-            password:"Testpassword1!",
-            phoneNumber:  "06-12345678"
+            street: "teststreet",
+            city: "testcity",
+            emailAddress: "invalid",
+            password: "Testpassword1!",
+            phoneNumber: "06-12345678"
         }
         chai.request(server).post("/api/user").send(registerJson).end((err, res) => {
             res.body.should.be.an("object");
@@ -54,11 +54,11 @@ describe('Register UC-201', function () {
         const registerJson = {
             firstName: "TC-201-3",
             lastName: "TC-201-3",
-            street:"teststreet",
-            city:"testcity",
-            emailAddress:"t.TC2013@UC201.nl",
-            password:"invalid",
-            phoneNumber:  "06-12345678"
+            street: "teststreet",
+            city: "testcity",
+            emailAddress: "t.TC2013@UC201.nl",
+            password: "invalid",
+            phoneNumber: "06-12345678"
         }
         chai.request(server).post("/api/user").send(registerJson).end((err, res) => {
             res.body.should.be.an("object");
@@ -76,11 +76,11 @@ describe('Register UC-201', function () {
         const registerJson = {
             firstName: "TC-201-4",
             lastName: "TC-201-4",
-            street:"teststreet",
-            city:"testcity",
-            emailAddress:"j.doe@server.com",
-            password:"Testpassword1!",
-            phoneNumber:"06-12345678"
+            street: "teststreet",
+            city: "testcity",
+            emailAddress: "j.doe@server.com",
+            password: "Testpassword1!",
+            phoneNumber: "06-12345678"
         }
         chai.request(server).post("/api/user").send(registerJson).end((err, res) => {
             res.body.should.be.an("object");
@@ -98,13 +98,13 @@ describe('Register UC-201', function () {
         const registerJson = {
             firstName: "TC-201-5",
             lastName: "TC-201-5",
-            street:"teststreet",
-            city:"testcity",
-            emailAddress:"t.TC2015@UC201.nl",
-            password:"Testpassword1!",
-            phoneNumber:"06-12345678"
+            street: "teststreet",
+            city: "testcity",
+            emailAddress: "t.TC2015@UC201.nl",
+            password: "Testpassword1!",
+            phoneNumber: "06-12345678"
         }
-        chai.request(server).post("/api/user").send(registerJson).end((err, res) => {
+        chai.request(server).post("/api/user").send(registerJson).end(async (err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -112,9 +112,17 @@ describe('Register UC-201', function () {
             message.should.be.a("string").that.contains("Register-endpoint: Created, succesfully created a new user");
             data.should.be.an("object");
             data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAddress", "password", "phoneNumber", "roles");
-            let { isActive, id } = data;
-            chai.expect([true,false]).to.include(isActive);
-            chai.request(server).delete(`/api/user/${id}`).set('Authorization', "Bearer " + jwt.sign({userId: id}, process.env.jwtSecretKey)).end()
+            data.id.should.be.a("number");
+            data.firstName.should.be.a("string").that.contains("TC-201-5");
+            data.lastName.should.be.a("string").that.contains("TC-201-5");
+            data.street.should.be.a("string").that.contains("teststreet");
+            data.city.should.be.a("string").that.contains("testcity");
+            data.isActive.should.be.a("boolean").that.equals(true);
+            data.emailAddress.should.be.a("string").that.contains("t.TC2015@UC201.nl");
+            data.password.should.be.a("string").that.contains("Testpassword1!");
+            data.phoneNumber.should.be.a("string").that.contains("06-12345678");
+            data.roles.should.be.an("string").that.contains("editor,guest");
+            await chai.request(server).delete(`/api/user/${data.id}`).set('Authorization', "Bearer " + jwt.sign({ userId: data.id }, process.env.jwtSecretKey)).then();
             done();
         })
     })
