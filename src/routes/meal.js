@@ -53,7 +53,7 @@ router.route('/')
                 data: {}
             });
         } else {
-            let sqlStatement = `INSERT INTO \`meal\` (isActive,isVega,isVegan,isToTakeHome,dateTime,maxAmountOfParticipants,price,imageUrl,cookId,createDate,updateDate,name,description,allergenes) VALUES (${req.body.isActive == undefined ? true : req.body.isActive},${req.body.isVega == undefined ? false : req.body.isVega},${req.body.isVegan == undefined ? false : req.body.isVegan},${req.body.isToTakeHome == undefined ? false : req.body.isToTakeHome},FROM_UNIXTIME(${req.body.dateTime}),${req.body.maxAmountOfParticipants},${req.body.price},'${req.body.imageUrl}',${req.userId},FROM_UNIXTIME(${req.body.createDate == undefined ? parseInt(new Date().getTime() / 1000) : req.body.createDate}),FROM_UNIXTIME(${req.body.updateDate == undefined ? parseInt(new Date().getTime() / 1000) : req.body.updateDate}),'${req.body.name}','${req.body.description}',${req.body.allergenes == undefined ? "''" : req.body.allergenes})`;
+            let sqlStatement = `INSERT INTO \`meal\` (isActive,isVega,isVegan,isToTakeHome,dateTime,maxAmountOfParticipants,price,imageUrl,cookId,createDate,updateDate,name,description,allergenes) VALUES (${req.body.isActive == undefined ? true : req.body.isActive},${req.body.isVega == undefined ? false : req.body.isVega},${req.body.isVegan == undefined ? false : req.body.isVegan},${req.body.isToTakeHome == undefined ? false : req.body.isToTakeHome},FROM_UNIXTIME(${req.body.dateTime}),${req.body.maxAmountOfParticipants},${req.body.price},'${req.body.imageUrl}',${req.userId},FROM_UNIXTIME(${parseInt(new Date().getTime() / 1000)}),FROM_UNIXTIME(${parseInt(new Date().getTime() / 1000)}),'${req.body.name}','${req.body.description}',${req.body.allergenes == undefined ? "''" : req.body.allergenes})`;
             logger.debug(sqlStatement)
             mysqldatabase.getConnection(function (err, conn) {
                 if (err) {
@@ -240,6 +240,16 @@ router.route('/:mealId')
         })
     })
     .put(authentication.validateToken, jsonParser, (req, res, next) => {
+        try {
+            if (req.body.dateTime != undefined) {
+                req.body.dateTime = parseInt(new Date(req.body.dateTime).getTime())
+                if (req.body.dateTime.toString().length == 13) {
+                    req.body.dateTime = parseInt(req.body.dateTime / 1000)
+                }
+            }
+        } catch (error) {
+            console.log(error)
+        }
         const result = updateSchema.validate(req.body);
         if (result.error != undefined) {
             logger.error(result.error.message)
@@ -293,7 +303,7 @@ router.route('/:mealId')
                                         logger.warn(`Key ${key} is not applicable to Meal`)
                                     }
                                 }
-                                sqlStatement += ` WHERE \`id\`=${req.params.mealId}`;
+                                sqlStatement += `, \`updateDate\`=FROM_UNIXTIME(${parseInt(new Date().getTime() / 1000)}) WHERE \`id\`=${req.params.mealId}`;
                                 logger.debug(sqlStatement)
                                 conn.query(sqlStatement, function (err, results, fields) {
                                     if (err) {
