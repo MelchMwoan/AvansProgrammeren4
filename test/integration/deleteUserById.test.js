@@ -52,7 +52,7 @@ describe('Delete User By Id UC-206', function () {
                 res.body.should.have.keys("status", "message", "data");
                 let { data, message, status } = res.body;
                 status.should.equal(200)
-                message.should.be.a("string").that.contains(`Userdata Delete-endpoint: User with ID #${id} succesfully deleted`);
+                message.should.be.a("string").that.contains(`Gebruiker met ID ${id} is verwijderd`);
                 data.should.be.an("object");
                 data.should.be.empty;
                 done();
