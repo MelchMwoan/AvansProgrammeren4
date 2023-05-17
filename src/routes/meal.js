@@ -41,9 +41,8 @@ router.route('/')
                 req.body.dateTime = parseInt(req.body.dateTime / 1000)
             }
         } catch (error) {
-            console.log(error)
+            logger.error(error)
         }
-        console.log(req.body.allergenes)
         const result = schema.validate(req.body);
         logger.debug("Received data for create meal: " + JSON.stringify(result.value))
         if (result.error != undefined) {
@@ -81,6 +80,7 @@ router.route('/')
                                 }
                                 if (results.length > 0) {
                                     logger.info(`Meal with id #${results[0].id} has been created`);
+                                    results[0].price = results[0].price.replace("'", '')
                                     res.status(201).json({
                                         status: 201,
                                         message: "Create Meal-endpoint: Created, succesfully created a new meal",
@@ -161,7 +161,12 @@ router.route('/:mealId')
                         sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${results[0].cookId}`
                         conn.execute(sqlStatement, function (err, results2, fields) {
                             results[0].cook = (({ password, ...o }) => o)(results2[0])
+                            results[0].cook.isActive = results[0].cook.isActive == 1 ? true : false
                             results[0] = (({ cookId, ...o }) => o)(results[0])
+                            results[0].isActive = results[0].isActive == 1 ? true : false
+                            results[0].isVega = results[0].isVega == 1 ? true : false
+                            results[0].isVegan = results[0].isVegan == 1 ? true : false
+                            results[0].isToTakeHome = results[0].isToTakeHome == 1 ? true : false
                             //TODO: optimize
                             //TODO: participants
                             res.status(200).json({
@@ -249,7 +254,7 @@ router.route('/:mealId')
                 }
             }
         } catch (error) {
-            console.log(error)
+            logger.error(error)
         }
         const result = updateSchema.validate(req.body);
         if (result.error != undefined) {
@@ -292,8 +297,10 @@ router.route('/:mealId')
                                     if (meal[key] != undefined) {
                                         logger.debug(`Changing ${key} for #${req.params.mealId} from ${meal[key]} to ${value}`)
                                         meal[key] = value;
-                                        if (!['isActive', 'isVega', 'isVegan', 'isToTakeHome'].includes(key)) {
+                                        if (!['isActive', 'isVega', 'isVegan', 'isToTakeHome', 'dateTime'].includes(key)) {
                                             value = `'${value}'`
+                                        } else if(key =='dateTime') {
+                                            value = `FROM_UNIXTIME(${value})`
                                         }
                                         if (!sqlStatement.endsWith("SET")) {
                                             sqlStatement += `, \`${key}\` = ${value}`;
@@ -304,6 +311,7 @@ router.route('/:mealId')
                                         logger.warn(`Key ${key} is not applicable to Meal`)
                                     }
                                 }
+                                //TODO: update return data
                                 sqlStatement += `, \`updateDate\`=FROM_UNIXTIME(${parseInt(new Date().getTime() / 1000)}) WHERE \`id\`=${req.params.mealId}`;
                                 logger.debug(sqlStatement)
                                 conn.query(sqlStatement, function (err, results, fields) {
