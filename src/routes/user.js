@@ -350,7 +350,7 @@ router.route('/:userId')
                             });
                         } else {
                             logger.info(`User #${req.userId} called delete userdata for: ${req.params.userId}`)
-                            let sqlStatement = `DELETE FROM \`user\` WHERE \`id\`=${req.params.userId}`;
+                            let sqlStatement = `DELETE FROM \`meal\` WHERE \`cookId\`=${req.params.userId}`;
                             logger.debug(sqlStatement)
                             conn.query(sqlStatement, function (err, results, fields) {
                                 if (err) {
@@ -360,11 +360,24 @@ router.route('/:userId')
                                         message: err.message
                                     });
                                 } else {
-                                    logger.info(`User with ID #${req.params.userId} succesfully deleted`)
-                                    res.status(200).json({
-                                        status: 200,
-                                        message: `Userdata Delete-endpoint: User with ID #${req.params.userId} succesfully deleted`,
-                                        data: {}
+                                    logger.info(`Meals with CookID #${req.params.userId} succesfully deleted`)
+                                    sqlStatement = `DELETE FROM \`user\` WHERE \`id\`=${req.params.userId}`;
+                                    logger.debug(sqlStatement)
+                                    conn.query(sqlStatement, function (err, results, fields) {
+                                        if (err) {
+                                            logger.error(err.message);
+                                            next({
+                                                code: 409,
+                                                message: err.message
+                                            });
+                                        } else {
+                                            logger.info(`User with ID #${req.params.userId} succesfully deleted`)
+                                            res.status(200).json({
+                                                status: 200,
+                                                message: `Userdata Delete-endpoint: User with ID #${req.params.userId} succesfully deleted`,
+                                                data: {}
+                                            });
+                                        }
                                     });
                                 }
                             });
