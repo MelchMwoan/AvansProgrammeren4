@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js",
-    "test": "mocha -reporter spec test/**/*.test.js --exit"
+    "test": "mocha -reporter spec test/**/*.test.js --exit",
+    "testspecific": "mocha --exit"
   },
   "author": "",
   "license": "ISC",
