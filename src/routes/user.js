@@ -241,7 +241,7 @@ router.route('/:userId')
         } else {
             const userId = req.params.userId;
             logger.info(`User #${req.userId} called update userdata for: ${req.params.userId}`)
-            let sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.params.userId} AND \`emailAddress\`='${req.body.emailAddress}'`;
+            let sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.params.userId}`;
             logger.debug(sqlStatement)
             mysqldatabase.getConnection(function (err, conn) {
                 if (err) {
@@ -284,7 +284,7 @@ router.route('/:userId')
                                         logger.warn(`Key ${key} is not applicable to User`)
                                     }
                                 }
-                                sqlStatement += ` WHERE \`id\`=${req.params.userId} AND \`emailAddress\`='${req.body.emailAddress}'`;
+                                sqlStatement += ` WHERE \`id\`=${req.params.userId}`;
                                 logger.debug(sqlStatement)
                                 conn.query(sqlStatement, function (err, results, fields) {
                                     if (err) {
@@ -303,10 +303,10 @@ router.route('/:userId')
                                 });
                             }
                         } else {
-                            logger.error(`User with id #${userId} and email ${req.body.emailAddress} not found`)
+                            logger.error(`User with id #${userId} not found`)
                             res.status(404).json({
                                 status: 404,
-                                message: `Userdata Update-endpoint: Not Found, User with id #${userId} and email ${req.body.emailAddress} not found`,
+                                message: `Userdata Update-endpoint: Not Found, User with id #${userId} not found`,
                                 data: {}
                             });
                         }
