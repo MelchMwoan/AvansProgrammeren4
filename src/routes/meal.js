@@ -421,6 +421,52 @@ router.route('/:mealId/participate')
             }
         })
     })
-    .delete(authentication.validateToken, jsonParser, (req, res, next) => { })
+    .delete(authentication.validateToken, jsonParser, (req, res, next) => {
+        let sqlStatement = `Select * FROM \`meal_participants_user\` WHERE \`mealId\`=${req.params.mealId} AND \`userId\`=${req.userId}`;
+        logger.debug(sqlStatement)
+        mysqldatabase.getConnection(function (err, conn) {
+            if (err) {
+                logger.error(`MySQL error: ${err}`);
+                next(`MySQL error: ${err.message}`)
+            }
+            if (conn) {
+                conn.query(sqlStatement, function (err, results, fields) {
+                    if (err) {
+                        logger.error(err.message);
+                        next({
+                            code: 409,
+                            message: err.message
+                        });
+                    } else if (results.length != 0) {
+                        logger.info(`Found participation with meal id #${req.params.mealId} and user id #${req.userId}`);
+                        sqlStatement = `DELETE FROM \`meal_participants_user\` WHERE \`mealId\`=${req.params.mealId} AND \`userId\`=${req.userId}`;
+                        conn.query(sqlStatement, function (err, results, fields) {
+                            if (err) {
+                                logger.error(err.message);
+                                next({
+                                    code: 409,
+                                    message: err.message
+                                });
+                            } else {
+                                res.status(200).json({
+                                    status: 200,
+                                    message: `User met ID #${req.userId} is afgemeld voor maaltijd met ID #${req.params.mealId}`,
+                                    data: {}
+                                });
+                            }
+                        })
+                    } else {
+                        logger.error(`Participation with meal id #${req.params.mealId} and user id #${req.userId} does not exist`)
+                        res.status(404).json({
+                            status: 404,
+                            message: `Meal Participate-endpoint: Not Found, Participation with meal id #${req.params.mealId} and user id #${req.userId} does not exist`,
+                            data: {}
+                        });
+                    }
+                });
+                mysqldatabase.releaseConnection(conn);
+            }
+        })
+    })
 router.route('/:mealId/participants')
 module.exports = router;
