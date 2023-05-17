@@ -81,6 +81,7 @@ router.route('/')
                                 if (results.length > 0) {
                                     logger.info(`Meal with id #${results[0].id} has been created`);
                                     results[0].price = results[0].price.replace("'", '')
+                                    results[0].price = parseFloat(results[0].price)
                                     res.status(201).json({
                                         status: 201,
                                         message: "Create Meal-endpoint: Created, succesfully created a new meal",
@@ -122,6 +123,7 @@ router.route('/')
                                 results[i] = (({ cookId, ...o }) => o)(results[i])
                                 //TODO: optimize
                                 //TODO: participants
+                                results[i].price = parseFloat(results[i].price)
                                 if (i + 1 == size) {
                                     res.status(200).json({
                                         status: 200,
@@ -167,6 +169,7 @@ router.route('/:mealId')
                             results[0].isVega = results[0].isVega == 1 ? true : false
                             results[0].isVegan = results[0].isVegan == 1 ? true : false
                             results[0].isToTakeHome = results[0].isToTakeHome == 1 ? true : false
+                            results[0].price = parseFloat(results[0].price)
                             //TODO: optimize
                             //TODO: participants
                             res.status(200).json({
@@ -328,6 +331,7 @@ router.route('/:mealId')
                                             meal = (({ cookId, ...o }) => o)(meal)
                                             //TODO: optimize
                                             //TODO: participants
+                                            meal.price = parseFloat(meal.price)
                                             res.status(200).json({
                                                 status: 200,
                                                 message: `Mealdata Update-endpoint: Meal with Id #${req.params.mealId} was succesfully updated`,
@@ -392,11 +396,27 @@ router.route('/:mealId/participate')
                                                 message: err.message
                                             });
                                         } else {
-                                            res.status(200).json({
-                                                status: 200,
-                                                message: `User met ID #${req.userId} is aangemeld voor maaltijd met ID #${req.params.mealId}`,
-                                                data: {}
-                                            });
+                                            sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.userId}`
+                                            conn.execute(sqlStatement, function (err, results2, fields) {
+                                                if (err) {
+                                                    logger.error(err.message);
+                                                    next({
+                                                        code: 409,
+                                                        message: err.message
+                                                    });
+                                                } else {
+                                                    logger.info(`User met ID #${req.userId} is aangemeld voor maaltijd met ID #${req.params.mealId}`)
+                                                    meal.price = parseFloat(meal.price)
+                                                    res.status(200).json({
+                                                        status: 200,
+                                                        message: `User met ID #${req.userId} is aangemeld voor maaltijd met ID #${req.params.mealId}`,
+                                                        data: {
+                                                            user: (({ password, ...o }) => o)(results2[0]),
+                                                            meal: meal
+                                                        }
+                                                    });
+                                                }
+                                            })
                                         }
                                     });
                                 } else {
@@ -450,7 +470,7 @@ router.route('/:mealId/participate')
                             } else {
                                 res.status(200).json({
                                     status: 200,
-                                    message: `User met ID #${req.userId} is afgemeld voor maaltijd met ID #${req.params.mealId}`,
+                                    message: `User met ID ${req.userId} is afgemeld voor maaltijd met ID ${req.params.mealId}`,
                                     data: {}
                                 });
                             }
