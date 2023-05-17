@@ -41,7 +41,7 @@ describe('User Overview UC-202', function () {
             data.should.be.an("array");
             data.forEach(user => {
                 let { isActive } = user;
-                isActive.should.to.be.equal(0);
+                isActive.should.to.be.equal(false);
             })
             done();
         })
@@ -57,7 +57,7 @@ describe('User Overview UC-202', function () {
             data.should.be.an("array");
             data.forEach(user => {
                 let { isActive } = user;
-                isActive.should.to.be.equal(1);
+                isActive.should.to.be.equal(true);
             })
             done();
         })
@@ -73,7 +73,7 @@ describe('User Overview UC-202', function () {
             data.should.be.an("array");
             data.forEach(user => {
                 let { isActive, city } = user;
-                isActive.should.to.be.equal(1);
+                isActive.should.to.be.equal(true);
                 city.should.to.be.equal("Breda");
             })
             done();
