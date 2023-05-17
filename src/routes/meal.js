@@ -330,10 +330,10 @@ router.route('/:mealId')
                                 });
                             }
                         } else {
-                            logger.error(`Meal with id #${req.params.mealId}`)
+                            logger.error(`Meal with id #${req.params.mealId} does not exist`)
                             res.status(404).json({
                                 status: 404,
-                                message: `Mealdata Update-endpoint: Not Found, Meal with id #${req.params.mealId}`,
+                                message: `Mealdata Update-endpoint: Not Found, Meal with id #${req.params.mealId} does not exist`,
                                 data: {}
                             });
                         }
