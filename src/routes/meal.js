@@ -137,6 +137,12 @@ router.route('/')
                                 }
                             })
                         }
+                    } else {
+                        res.status(200).json({
+                            status: 200,
+                            message: "All Meals-endpoint",
+                            data: []
+                        });
                     }
                 });
                 mysqldatabase.releaseConnection(conn);
