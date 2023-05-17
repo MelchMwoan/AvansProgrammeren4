@@ -35,6 +35,14 @@ const updateSchema = Joi.object({
 })
 router.route('/')
     .post(authentication.validateToken, jsonParser, (req, res, next) => {
+        try {
+            req.body.dateTime = parseInt(new Date(req.body.dateTime).getTime())
+            if (req.body.dateTime.toString().length == 13) {
+                req.body.dateTime = parseInt(req.body.dateTime / 1000)
+            }
+        } catch (error) {
+            console.log(error)
+        }
         const result = schema.validate(req.body);
         logger.debug("Received data for create meal: " + JSON.stringify(result.value))
         if (result.error != undefined) {
@@ -53,7 +61,6 @@ router.route('/')
                     next(`MySQL error: ${err.message}`)
                 }
                 if (conn) {
-                    logger.debug(sqlStatement)
                     conn.query(sqlStatement, function (err, results, fields) {
                         if (err) {
                             logger.error(err.message);
