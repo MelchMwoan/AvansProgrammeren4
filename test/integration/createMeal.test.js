@@ -51,7 +51,7 @@ describe('Create Meal UC-301', function () {
             price: 5.50,
             maxAmountOfParticipants: 5,
             dateTime: "2021-05-05T18:00:00.000Z",
-            imageUrl: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.bbcgoodfood.com%2Frecipes%2Fcollection%2Fpasta&psig=AOvVaw0QZ3Z4Z2Z4Z2Z4Z2Z4Z2Z4&ust=1619787226262000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCJjQ4ZqH4_ACFQAAAAAdAAAAABAD"
+            imageUrl: "https://images.food52.com/8kJ4moklcq55uy3Qw2LTnxqCQP8=/1200x1200/c0c6aec8-e771-4c84-88fb-3aba6448d553--Pasta.jpg"
         }
         chai.request(server).post("/api/meal").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).send(meal).end((err, res) => {
             res.body.should.be.an("object");
@@ -81,7 +81,7 @@ describe('Create Meal UC-301', function () {
             data.cook.roles.should.be.an("string").that.is.empty;
             data.createDate.should.be.a("string");
             data.dateTime.should.be.a("string").that.equal("2021-05-05T18:00:00.000Z");
-            data.imageUrl.should.be.a("string").that.equal("https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.bbcgoodfood.com%2Frecipes%2Fcollection%2Fpasta&psig=AOvVaw0QZ3Z4Z2Z4Z2Z4Z2Z4Z2Z4&ust=1619787226262000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCJjQ4ZqH4_ACFQAAAAAdAAAAABAD");
+            data.imageUrl.should.be.a("string").that.equal("https://images.food52.com/8kJ4moklcq55uy3Qw2LTnxqCQP8=/1200x1200/c0c6aec8-e771-4c84-88fb-3aba6448d553--Pasta.jpg");
             data.isToTakeHome.should.be.a("boolean").that.equal(false);
             data.isVega.should.be.a("boolean").that.equal(false);
             data.isVegan.should.be.a("boolean").that.equal(false);
