@@ -537,11 +537,61 @@ router.route('/:mealId/participate')
                                     message: err.message
                                 });
                             } else {
-                                res.status(200).json({
-                                    status: 200,
-                                    message: `User met ID ${req.userId} is afgemeld voor maaltijd met ID ${req.params.mealId}`,
-                                    data: {}
-                                });
+                                sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.userId}`
+                                conn.execute(sqlStatement, function (err, results2, fields) {
+                                    if (err) {
+                                        logger.error(err.message);
+                                        next({
+                                            code: 409,
+                                            message: err.message
+                                        });
+                                    } else {
+                                        let user = (({ password, ...o }) => o)(results2[0]);
+                                        sqlStatement = `Select * FROM \`meal\` WHERE \`id\`=${req.params.mealId}`
+
+                                        conn.execute(sqlStatement, function (err, results3, fields) {
+                                            if (err) {
+                                                logger.error(err.message);
+                                                next({
+                                                    code: 409,
+                                                    message: err.message
+                                                });
+                                            } else {
+                                                let meal = results3[0];
+                                                user.isActive = user.isActive == 1 ? true : false
+                                                meal.price = parseFloat(meal.price)
+                                                meal.isActive = meal.isActive == 1 ? true : false
+                                                meal.isVega = meal.isVega == 1 ? true : false
+                                                meal.isVegan = meal.isVegan == 1 ? true : false
+                                                meal.isToTakeHome = meal.isToTakeHome == 1 ? true : false
+                                                sqlStatement = `SELECT * FROM \`user\` WHERE \`id\`=${meal.cookId}`
+                                                conn.execute(sqlStatement, function (err, results2, fields) {
+                                                    meal.cook = (({ password, ...o }) => o)(results2[0])
+                                                    meal.cook.isActive = meal.cook.isActive == 1 ? true : false
+                                                    meal = (({ cookId, ...o }) => o)(meal)
+                                                    meal.participants = [];
+                                                    sqlStatement = `Select * FROM \`meal_participants_user\` LEFT JOIN \`user\` on user.id = meal_participants_user.userId WHERE \`mealId\`=${meal.id}`
+                                                    conn.execute(sqlStatement, function (err, results3, fields) {
+                                                        results3.forEach(element => {
+                                                            element.isActive = element.isActive == 1 ? true : false
+                                                            meal.participants.push((({ password, userId, mealId, ...o }) => o)(element))
+                                                        });
+                                                        if (meal.participants.length == results3.length) {
+                                                            res.status(200).json({
+                                                                status: 200,
+                                                                message: `User met ID ${req.userId} is afgemeld voor maaltijd met ID ${req.params.mealId}`,
+                                                                data: {
+                                                                    user: user,
+                                                                    meal: meal
+                                                                }
+                                                            });
+                                                        }
+                                                    })
+                                                })
+                                            }
+                                        })
+                                    }
+                                })
                             }
                         })
                     } else {

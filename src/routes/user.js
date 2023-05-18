@@ -64,7 +64,9 @@ router.route('/')
                     if (results) {
                         logger.info(`Found ${results.length} results`);
                         results.forEach(element => {
-                            element.isActive = element.isActive == 1 ? true : false;})
+                            element.isActive = element.isActive == 1 ? true : false
+                            element.password = undefined;
+                        })
                         res.status(200).json({
                             status: 200,
                             message: "All Users-endpoint",
