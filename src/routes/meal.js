@@ -35,6 +35,7 @@ const updateSchema = Joi.object({
 })
 router.route('/')
     .post(authentication.validateToken, jsonParser, (req, res, next) => {
+        console.log(req.userId);
         try {
             req.body.dateTime = parseInt(new Date(req.body.dateTime).getTime())
             if (req.body.dateTime.toString().length == 13) {
@@ -96,6 +97,7 @@ router.route('/')
                                             });
                                         } else {
                                             results[0].cook = (({ password, ...o }) => o)(results2[0])
+                                            results[0].cook.isActive = results[0].cook.isActive == 1 ? true : false
                                             results[0].participants = []
                                             res.status(201).json({
                                                 status: 201,
