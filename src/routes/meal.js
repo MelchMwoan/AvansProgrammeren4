@@ -35,7 +35,6 @@ const updateSchema = Joi.object({
 })
 router.route('/')
     .post(authentication.validateToken, jsonParser, (req, res, next) => {
-        console.log(req.body.dateTime)
         try {
             req.body.dateTime = parseInt(new Date(req.body.dateTime).getTime())
             if (req.body.dateTime.toString().length == 13) {
