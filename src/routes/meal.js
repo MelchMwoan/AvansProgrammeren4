@@ -210,6 +210,7 @@ router.route('/:mealId')
                             let sqlStatement = `Select * FROM \`meal_participants_user\` LEFT JOIN \`user\` on user.id = meal_participants_user.userId WHERE \`mealId\`=${results[0].id}`
                             conn.execute(sqlStatement, function (err, results3, fields) {
                                 results3.forEach(element => {
+                                    element.isActive = element.isActive == 1 ? true : false
                                     results[0].participants.push((({ password, userId, mealId, ...o }) => o)(element))
                                 });
                                 if (results[0].participants.length == results3.length) {
