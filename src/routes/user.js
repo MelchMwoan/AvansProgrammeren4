@@ -300,6 +300,7 @@ router.route('/:userId')
                                             message: err.message
                                         });
                                     } else {
+                                        user.isActive = user.isActive == 1 ? true : false
                                         res.status(200).json({
                                             status: 200,
                                             message: `Userdata Update-endpoint: User with Id #${userId} was succesfully updated`,
