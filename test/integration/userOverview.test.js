@@ -15,7 +15,7 @@ describe('User Overview UC-202', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(200)
-            message.should.be.a("string").that.contains("All Users-endpoint");
+            message.should.be.a("string").that.equal("All Users-endpoint");
             data.should.be.an("array").to.have.lengthOf.at.least(2);
             expect(data.every(obj => {
                 expect(obj).to.have.all.keys(expectedKeys);
@@ -39,7 +39,7 @@ describe('User Overview UC-202', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(200)
-            message.should.be.a("string").that.contains("Unknown column 'nonexistent' in 'where clause'");
+            message.should.be.a("string").that.equal("Unknown column 'nonexistent' in 'where clause'");
             data.should.be.an("array");
             data.should.be.empty;
             done();
@@ -52,7 +52,7 @@ describe('User Overview UC-202', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(200)
-            message.should.be.a("string").that.contains("All Users-endpoint");
+            message.should.be.a("string").that.equal("All Users-endpoint");
             data.should.be.an("array");
             data.should.not.be.empty;
             expect(data.every(obj => {
@@ -77,7 +77,7 @@ describe('User Overview UC-202', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(200)
-            message.should.be.a("string").that.contains("All Users-endpoint");
+            message.should.be.a("string").that.equal("All Users-endpoint");
             data.should.be.an("array");
             data.should.not.be.empty;
             expect(data.every(obj => {
@@ -102,7 +102,7 @@ describe('User Overview UC-202', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(200)
-            message.should.be.a("string").that.contains("All Users-endpoint");
+            message.should.be.a("string").that.equal("All Users-endpoint");
             data.should.be.an("array");
             data.should.not.be.empty;
             expect(data.every(obj => {

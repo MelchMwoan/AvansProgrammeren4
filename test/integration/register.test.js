@@ -21,7 +21,7 @@ describe('Register UC-201', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(400)
-            message.should.be.a("string").that.contains("Register-endpoint: Bad Request, \"phoneNumber\" is required");
+            message.should.be.a("string").that.equal("Register-endpoint: Bad Request, \"phoneNumber\" is required");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -43,7 +43,7 @@ describe('Register UC-201', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(400)
-            message.should.be.a("string").that.contains("Register-endpoint: Bad Request, \"emailAddress\" must be a valid email");
+            message.should.be.a("string").that.equal("Register-endpoint: Bad Request, \"emailAddress\" must be a valid email");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -65,7 +65,7 @@ describe('Register UC-201', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(400)
-            message.should.be.a("string").that.contains("Register-endpoint: Bad Request, \"invalid\" is not a valid password (at least 1 number and 1 capital, 8 minimum characters)");
+            message.should.be.a("string").that.equal("Register-endpoint: Bad Request, \"invalid\" is not a valid password (at least 1 number and 1 capital, 8 minimum characters)");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -87,7 +87,7 @@ describe('Register UC-201', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(403)
-            message.should.be.a("string").that.contains("Register-endpoint: Forbidden, user with email: 'j.doe@server.com' already exists");
+            message.should.be.a("string").that.equal("Register-endpoint: Forbidden, user with email: 'j.doe@server.com' already exists");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -109,19 +109,19 @@ describe('Register UC-201', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(201)
-            message.should.be.a("string").that.contains("Register-endpoint: Created, succesfully created a new user");
+            message.should.be.a("string").that.equal("Register-endpoint: Created, succesfully created a new user");
             data.should.be.an("object");
             data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAddress", "password", "phoneNumber", "roles");
             data.id.should.be.a("number");
-            data.firstName.should.be.a("string").that.contains("TC-201-5");
-            data.lastName.should.be.a("string").that.contains("TC-201-5");
-            data.street.should.be.a("string").that.contains("teststreet");
-            data.city.should.be.a("string").that.contains("testcity");
+            data.firstName.should.be.a("string").that.equal("TC-201-5");
+            data.lastName.should.be.a("string").that.equal("TC-201-5");
+            data.street.should.be.a("string").that.equal("teststreet");
+            data.city.should.be.a("string").that.equal("testcity");
             data.isActive.should.be.a("boolean").that.equals(true);
-            data.emailAddress.should.be.a("string").that.contains("t.TC2015@UC201.nl");
-            data.password.should.be.a("string").that.contains("Testpassword1!");
-            data.phoneNumber.should.be.a("string").that.contains("06-12345678");
-            data.roles.should.be.an("string").that.contains("editor,guest");
+            data.emailAddress.should.be.a("string").that.equal("t.TC2015@UC201.nl");
+            data.password.should.be.a("string").that.equal("Testpassword1!");
+            data.phoneNumber.should.be.a("string").that.equal("06-12345678");
+            data.roles.should.be.an("string").that.equal("editor,guest");
             await chai.request(server).delete(`/api/user/${data.id}`).set('Authorization', "Bearer " + jwt.sign({ userId: data.id }, process.env.jwtSecretKey)).then();
             done();
         })
