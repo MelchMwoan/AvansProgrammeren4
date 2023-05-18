@@ -175,6 +175,7 @@ router.get('/profile', authentication.validateToken, jsonParser, (req, res) => {
                 } else {
                     logger.info(`Found user with id #${req.params.userId}`);
                     let returnuser = (({ password, ...o }) => o)(results[0])
+                    returnuser.isActive = returnuser.isActive == 1 ? true : false
                     res.status(200).json({
                         status: 200,
                         message: `Profile-endpoint: OK, here's your profile ${returnuser.firstName}`,
