@@ -125,11 +125,11 @@ CREATE TABLE `user` (
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
 INSERT INTO `user` VALUES 
-(1,'Mariëtte','van den Dullemen',1,'m.vandullemen@server.nl','secret','','','',''),
-(2,'John','Doe',1,'j.doe@server.com','secret','06 12425475','editor,guest','',''),
-(3,'Herman','Huizinga',1,'h.huizinga@server.nl','secret','06-12345678','editor,guest','',''),
-(4,'Marieke','Van Dam',0,'m.vandam@server.nl','secret','06-12345678','editor,guest','',''),
-(5,'Henk','Tank',1,'h.tank@server.com','secret','06 12425495','editor,guest','','');
+(1,'Mariëtte','van den Dullemen',1,'m.vandullemen@server.nl','Secret123','06 12425495','','',''),
+(2,'John','Doe',1,'j.doe@server.com','Secret123','06 12425475','editor,guest','',''),
+(3,'Herman','Huizinga',1,'h.huizinga@server.nl','Secret123','06-12345678','editor,guest','',''),
+(4,'Marieke','Van Dam',0,'m.vandam@server.nl','Secret123','06-12345678','editor,guest','',''),
+(5,'Henk','Tank',1,'h.tank@server.com','Secret123','06 12425495','editor,guest','','');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
