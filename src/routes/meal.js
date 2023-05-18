@@ -139,12 +139,18 @@ router.route('/')
                             sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${results[i].cookId}`
                             conn.execute(sqlStatement, function (err, results2, fields) {
                                 results[i].cook = (({ password, ...o }) => o)(results2[0])
+                                results[i].cook.isActive = results[i].cook.isActive == 1 ? true : false
                                 results[i] = (({ cookId, ...o }) => o)(results[i])
                                 results[i].price = parseFloat(results[i].price)
                                 results[i].participants = []
+                                results[i].isActive = results[i].isActive == 1 ? true : false
+                                results[i].isVega = results[i].isVega == 1 ? true : false
+                                results[i].isVegan = results[i].isVegan == 1 ? true : false
+                                results[i].isToTakeHome = results[i].isToTakeHome == 1 ? true : false
                                 let sqlStatement = `Select * FROM \`meal_participants_user\` LEFT JOIN \`user\` on user.id = meal_participants_user.userId WHERE \`mealId\`=${results[i].id}`
                                 conn.execute(sqlStatement, function (err, results3, fields) {
                                     results3.forEach(element => {
+                                        element.isActive = element.isActive == 1 ? true : false
                                         results[i].participants.push((({ password, userId, mealId, ...o }) => o)(element))
                                     });
                                     if (i + 1 == size) {
