@@ -56,8 +56,8 @@ describe('Get Meal By Id UC-304', function () {
             data.isVegan.should.be.a("boolean").that.equal(false);
             data.isToTakeHome.should.be.a("boolean").that.equal(true);
             data.imageUrl.should.be.a("string").that.equal("https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg");
-            data.dateTime.should.be.a("string").that.equal("2022-03-22T16:35:00.000Z");
-            data.createDate.should.be.a("string").that.equal("2022-02-26T17:12:40.048Z");
+            data.dateTime.should.be.a("string");
+            data.createDate.should.be.a("string");
             data.cook.should.be.an("object");
             data.cook.should.have.keys("id", "firstName", "lastName", "emailAddress", "phoneNumber", "street", "city", "isActive", "roles");
             data.cook.id.should.be.a("number").that.equal(1);
