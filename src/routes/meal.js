@@ -35,6 +35,7 @@ const updateSchema = Joi.object({
 })
 router.route('/')
     .post(authentication.validateToken, jsonParser, (req, res, next) => {
+        console.log(req.userId);
         try {
             req.body.dateTime = parseInt(new Date(req.body.dateTime).getTime())
             if (req.body.dateTime.toString().length == 13) {
@@ -96,6 +97,7 @@ router.route('/')
                                             });
                                         } else {
                                             results[0].cook = (({ password, ...o }) => o)(results2[0])
+                                            results[0].cook.isActive = results[0].cook.isActive == 1 ? true : false
                                             results[0].participants = []
                                             res.status(201).json({
                                                 status: 201,
@@ -137,12 +139,18 @@ router.route('/')
                             sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${results[i].cookId}`
                             conn.execute(sqlStatement, function (err, results2, fields) {
                                 results[i].cook = (({ password, ...o }) => o)(results2[0])
+                                results[i].cook.isActive = results[i].cook.isActive == 1 ? true : false
                                 results[i] = (({ cookId, ...o }) => o)(results[i])
                                 results[i].price = parseFloat(results[i].price)
                                 results[i].participants = []
+                                results[i].isActive = results[i].isActive == 1 ? true : false
+                                results[i].isVega = results[i].isVega == 1 ? true : false
+                                results[i].isVegan = results[i].isVegan == 1 ? true : false
+                                results[i].isToTakeHome = results[i].isToTakeHome == 1 ? true : false
                                 let sqlStatement = `Select * FROM \`meal_participants_user\` LEFT JOIN \`user\` on user.id = meal_participants_user.userId WHERE \`mealId\`=${results[i].id}`
                                 conn.execute(sqlStatement, function (err, results3, fields) {
                                     results3.forEach(element => {
+                                        element.isActive = element.isActive == 1 ? true : false
                                         results[i].participants.push((({ password, userId, mealId, ...o }) => o)(element))
                                     });
                                     if (i + 1 == size) {
@@ -202,6 +210,7 @@ router.route('/:mealId')
                             let sqlStatement = `Select * FROM \`meal_participants_user\` LEFT JOIN \`user\` on user.id = meal_participants_user.userId WHERE \`mealId\`=${results[0].id}`
                             conn.execute(sqlStatement, function (err, results3, fields) {
                                 results3.forEach(element => {
+                                    element.isActive = element.isActive == 1 ? true : false
                                     results[0].participants.push((({ password, userId, mealId, ...o }) => o)(element))
                                 });
                                 if (results[0].participants.length == results3.length) {
@@ -362,6 +371,7 @@ router.route('/:mealId')
                                         sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${meal.cookId}`
                                         conn.execute(sqlStatement, function (err, results2, fields) {
                                             meal.cook = (({ password, ...o }) => o)(results2[0])
+                                            meal.cook.isActive = meal.cook.isActive == 1 ? true : false
                                             meal = (({ cookId, ...o }) => o)(meal)
                                             meal.price = parseFloat(meal.price)
                                             meal.dateTime = new Date(meal.dateTime)

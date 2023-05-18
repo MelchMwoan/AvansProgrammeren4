@@ -175,6 +175,7 @@ router.get('/profile', authentication.validateToken, jsonParser, (req, res) => {
                 } else {
                     logger.info(`Found user with id #${req.params.userId}`);
                     let returnuser = (({ password, ...o }) => o)(results[0])
+                    returnuser.isActive = returnuser.isActive == 1 ? true : false
                     res.status(200).json({
                         status: 200,
                         message: `Profile-endpoint: OK, here's your profile ${returnuser.firstName}`,
@@ -215,6 +216,7 @@ router.route('/:userId')
                             returnuser = (({ password, ...o }) => o)(results[0])
                             message = `Userdata-endpoint: User info for #${returnuser.id}`;
                         }
+                        returnuser.isActive = returnuser.isActive == 1 ? true : false
                         res.status(200).json({
                             status: 200,
                             message: message,
@@ -298,6 +300,7 @@ router.route('/:userId')
                                             message: err.message
                                         });
                                     } else {
+                                        user.isActive = user.isActive == 1 ? true : false
                                         res.status(200).json({
                                             status: 200,
                                             message: `Userdata Update-endpoint: User with Id #${userId} was succesfully updated`,

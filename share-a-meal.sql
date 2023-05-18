@@ -125,7 +125,7 @@ CREATE TABLE `user` (
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
 INSERT INTO `user` VALUES 
-(1,'Mariëtte','van den Dullemen',1,'m.vandullemen@server.nl','Secret123','06-12345678','','',''),
+(1,'Mariëtte','van den Dullemen',1,'m.vandullemen@server.nl','Secret123','06-12345678','','','Breda'),
 (2,'John','Doe',1,'j.doe@server.com','Secret123','06 12425475','editor,guest','',''),
 (3,'Herman','Huizinga',1,'h.huizinga@server.nl','Secret123','06-12345678','editor,guest','',''),
 (4,'Marieke','Van Dam',0,'m.vandam@server.nl','Secret123','06-12345678','editor,guest','',''),
