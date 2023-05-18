@@ -364,6 +364,7 @@ router.route('/:mealId')
                                         sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${meal.cookId}`
                                         conn.execute(sqlStatement, function (err, results2, fields) {
                                             meal.cook = (({ password, ...o }) => o)(results2[0])
+                                            meal.cook.isActive = meal.cook.isActive == 1 ? true : false
                                             meal = (({ cookId, ...o }) => o)(meal)
                                             meal.price = parseFloat(meal.price)
                                             meal.dateTime = new Date(meal.dateTime)
