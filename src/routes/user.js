@@ -216,6 +216,7 @@ router.route('/:userId')
                             returnuser = (({ password, ...o }) => o)(results[0])
                             message = `Userdata-endpoint: User info for #${returnuser.id}`;
                         }
+                        returnuser.isActive = returnuser.isActive == 1 ? true : false
                         res.status(200).json({
                             status: 200,
                             message: message,
