@@ -88,7 +88,8 @@ describe('Update User Details By Id UC-205', function () {
         let updateValues = {
             emailAddress: "m.vandullemen@server.nl",
             city: "Utrecht",
-            lastName: "Kees"
+            lastName: "Kees",
+            password: "Test1234"
         }
         chai.request(server).put("/api/user/1").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).send(updateValues).end((err, res) => {
             res.body.should.be.an("object");
@@ -104,7 +105,7 @@ describe('Update User Details By Id UC-205', function () {
             data.city.should.be.a("string").that.equal("Utrecht");
             data.isActive.should.be.a("boolean").that.equal(true);
             data.emailAddress.should.be.a("string").that.equal("m.vandullemen@server.nl");
-            data.password.should.be.a("string").that.equal("Secret123");
+            data.password.should.be.a("string").that.equal(updateValues.password);
             data.phoneNumber.should.be.a("string").that.equal("06-12345678");
             data.roles.should.be.an("string").that.equal("");
             updateValues.city = "Breda";
