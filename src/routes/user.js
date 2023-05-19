@@ -158,7 +158,6 @@ router.route('/')
 
 
 router.get('/profile', authentication.validateToken, jsonParser, (req, res) => {
-    //TODO: 3.	Het systeem zoekt de details van de bijbehorende maaltijden die vandaag of in de toekomst plaatsvinden op.
     logger.info(`User with id ${req.userId} called profile info`)
     let sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.userId}`;
     logger.debug(sqlStatement)
@@ -179,11 +178,44 @@ router.get('/profile', authentication.validateToken, jsonParser, (req, res) => {
                     logger.info(`Found user with id #${req.params.userId}`);
                     let returnuser = (({ password, ...o }) => o)(results[0])
                     returnuser.isActive = returnuser.isActive == 1 ? true : false
-                    res.status(200).json({
-                        status: 200,
-                        message: `Profile-endpoint: OK, here's your profile ${returnuser.firstName}`,
-                        data: returnuser
-                    })
+                    returnuser.upcomingMeals = [];
+                    let sqlStatement = `Select * FROM \`meal\` WHERE \`cookId\`=${req.userId} AND \`dateTime\`>=CURDATE()`;
+                    logger.debug(sqlStatement)
+                    conn.query(sqlStatement, function (err, results, fields) {
+                        if (err) {
+                            logger.error(err.message);
+                            next({
+                                code: 409,
+                                message: err.message
+                            });
+                        } else {
+                            logger.info(`Found ${results.length} upcoming meals for user with id #${req.params.userId}`);
+                            if (results.length == 0) {
+                                res.status(200).json({
+                                    status: 200,
+                                    message: `Profile-endpoint: OK, here's your profile ${returnuser.firstName}`,
+                                    data: returnuser
+                                })
+                            } else {
+                                results.forEach(meal => {
+                                    meal.cookId = undefined;
+                                    meal.isActive = meal.isActive == 1 ? true : false
+                                    meal.isVegan = meal.isVegan == 1 ? true : false
+                                    meal.isVega = meal.isVega == 1 ? true : false
+                                    meal.isToTakeHome = meal.isToTakeHome == 1 ? true : false
+                                    meal.price = parseFloat(meal.price)
+                                    returnuser.upcomingMeals.push(meal)
+                                    if (returnuser.upcomingMeals.length == results.length) {
+                                        res.status(200).json({
+                                            status: 200,
+                                            message: `Profile-endpoint: OK, here's your profile ${returnuser.firstName}`,
+                                            data: returnuser
+                                        })
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
             });
             mysqldatabase.releaseConnection(conn);
@@ -194,7 +226,6 @@ router.get('/profile', authentication.validateToken, jsonParser, (req, res) => {
 
 router.route('/:userId')
     .get(authentication.validateToken, jsonParser, (req, res, next) => {
-        //TODO: 3.	Het systeem zoekt de details van de bijbehorende maaltijden die vandaag of in de toekomst plaatsvinden op.
         logger.info(`User #${req.userId} called get userdata for: ${req.params.userId}`)
         let sqlStatement = `Select * FROM \`user\` WHERE \`id\`=${req.params.userId}`;
         logger.debug(sqlStatement)
@@ -220,10 +251,43 @@ router.route('/:userId')
                             message = `Userdata-endpoint: User info for #${returnuser.id}`;
                         }
                         returnuser.isActive = returnuser.isActive == 1 ? true : false
-                        res.status(200).json({
-                            status: 200,
-                            message: message,
-                            data: returnuser
+                        returnuser.upcomingMeals = [];
+                        let sqlStatement = `Select * FROM \`meal\` WHERE \`cookId\`=${req.params.userId} AND \`dateTime\`>=CURDATE()`;
+                        logger.debug(sqlStatement)
+                        conn.query(sqlStatement, function (err, results, fields) {
+                            if (err) {
+                                logger.error(err.message);
+                                next({
+                                    code: 409,
+                                    message: err.message
+                                });
+                            } else {
+                                logger.info(`Found ${results.length} upcoming meals for user with id #${req.params.userId}`);
+                                if (results.length == 0) {
+                                    res.status(200).json({
+                                        status: 200,
+                                        message: message,
+                                        data: returnuser
+                                    })
+                                } else {
+                                    results.forEach(meal => {
+                                        meal.cookId = undefined;
+                                        meal.isActive = meal.isActive == 1 ? true : false
+                                        meal.isVegan = meal.isVegan == 1 ? true : false
+                                        meal.isVega = meal.isVega == 1 ? true : false
+                                        meal.isToTakeHome = meal.isToTakeHome == 1 ? true : false
+                                        meal.price = parseFloat(meal.price)
+                                        returnuser.upcomingMeals.push(meal)
+                                        if (returnuser.upcomingMeals.length == results.length) {
+                                            res.status(200).json({
+                                                status: 200,
+                                                message: message,
+                                                data: returnuser
+                                            });
+                                        }
+                                    });
+                                }
+                            }
                         });
                     } else {
                         logger.error(`User with id #${req.params.userId} does not exist`)
@@ -304,7 +368,7 @@ router.route('/:userId')
                                         });
                                     } else {
                                         user.isActive = user.isActive == 1 ? true : false;
-                                        if(req.body.password == undefined){
+                                        if (req.body.password == undefined) {
                                             user.password = undefined;
                                         } else {
                                             user.password = req.body.password;
