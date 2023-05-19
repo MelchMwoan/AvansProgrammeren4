@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@joi/date": "^2.1.0",
+    "bcrypt": "^5.1.0",
     "chai": "^4.3.7",
     "chai-http": "^4.3.0",
     "dotenv": "^16.0.3",
