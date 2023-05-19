@@ -6,6 +6,7 @@ const logger = require('tracer').colorConsole();
 const mysqldatabase = require('../utils/mysql-db');
 const Joi = require('joi');
 const authentication = require('../utils/authentication');
+const bcrypt = require('bcrypt');
 const schema = Joi.object({
     firstName: Joi.string().min(3).max(255).required(),
     lastName: Joi.string().min(3).max(255).required(),
@@ -113,7 +114,8 @@ router.route('/')
                                 data: {}
                             });
                         } else {
-                            sqlStatement = `INSERT INTO \`user\` (firstName,lastName,isActive,emailAddress,password,phoneNumber,street,city) VALUES ('${req.body.firstName}','${req.body.lastName}',${(req.body.isActive == undefined ? true : req.body.isActive)},'${req.body.emailAddress}','${req.body.password}','${req.body.phoneNumber}','${req.body.street}','${req.body.city}')`;
+                            const password = bcrypt.hashSync(req.body.password, 10);
+                            sqlStatement = `INSERT INTO \`user\` (firstName,lastName,isActive,emailAddress,password,phoneNumber,street,city) VALUES ('${req.body.firstName}','${req.body.lastName}',${(req.body.isActive == undefined ? true : req.body.isActive)},'${req.body.emailAddress}','${password}','${req.body.phoneNumber}','${req.body.street}','${req.body.city}')`;
                             logger.debug(sqlStatement)
                             conn.query(sqlStatement, function (err, results, fields) {
                                 if (err) {
@@ -136,6 +138,7 @@ router.route('/')
                                         if (results.length > 0) {
                                             logger.info(`User with id #${results[0].id} has been created`);
                                             (results[0].isActive == true) ? results[0].isActive = true : results[0].isActive = false
+                                            results[0].password = req.body.password;
                                             res.status(201).json({
                                                 status: 201,
                                                 message: "Register-endpoint: Created, succesfully created a new user",
@@ -300,7 +303,12 @@ router.route('/:userId')
                                             message: err.message
                                         });
                                     } else {
-                                        user.isActive = user.isActive == 1 ? true : false
+                                        user.isActive = user.isActive == 1 ? true : false;
+                                        if(req.body.password == undefined){
+                                            user.password = undefined;
+                                        } else {
+                                            user.password = req.body.password;
+                                        }
                                         res.status(200).json({
                                             status: 200,
                                             message: `Userdata Update-endpoint: User with Id #${userId} was succesfully updated`,

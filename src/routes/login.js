@@ -5,12 +5,13 @@ const router = express.Router()
 const logger = require('tracer').colorConsole();
 const Joi = require('joi');
 const mysqldatabase = require('../utils/mysql-db');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const schema = Joi.object({
     emailAddress: Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}@[A-Z0-9]{2,}\.[A-Z]{2,3}$/i).required().messages({ 'string.pattern.base': `\"emailAddress\" must be a valid email` }),
     emailAdress: Joi.string().pattern(/^[A-Z]{1}\.[A-Z0-9]{2,}@[A-Z0-9]{2,}\.[A-Z]{2,3}$/i).messages({ 'string.pattern.base': `\"emailAddress\" must be a valid email` }),
     password: Joi.string().pattern(/^(?=.*[0-9])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{8,}$/).required().messages({ 'string.pattern.base': `{:[.]} is not a valid password (at least 1 number and 1 capital, 8 minimum characters)` })
 })
-const jwt = require('jsonwebtoken');
 
 router.post('/', jsonParser, (req, res, next) => {
     const result = schema.validate(req.body);
@@ -31,7 +32,7 @@ router.post('/', jsonParser, (req, res, next) => {
                 next(`MySQL error: ${err.message}`)
             }
             if (conn) {
-                conn.query(sqlStatement, function (err, results, fields) {
+                conn.query(sqlStatement, async function (err, results, fields) {
                     if (err) {
                         logger.error(err.message);
                         next({
@@ -47,7 +48,7 @@ router.post('/', jsonParser, (req, res, next) => {
                             data: {}
                         });
                     } else {
-                        if (req.body.password == results[0].password) {
+                        if (bcrypt.compareSync(req.body.password, results[0].password)) {
                             let user = (({ password, ...o }) => o)(results[0]);
                             const payload = {
                                 userId: user.id
