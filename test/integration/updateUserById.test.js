@@ -110,8 +110,8 @@ describe('Update User Details By Id UC-205', function () {
             data.roles.should.be.an("string").that.equal("");
             updateValues.city = "Breda";
             updateValues.lastName = "van den Dullemen"
-            chai.request(server).put("/api/user/1").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).send(updateValues).then()
-            done();
+            updateValues.password = "Secret123"
+            chai.request(server).put("/api/user/1").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).send(updateValues).end((err, res) => {done()});
         })
     })
 })

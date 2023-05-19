@@ -2,6 +2,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../app.js');
 chai.should();
+const expect = chai.expect;
 chai.use(chaiHttp);
 const jwt = require('jsonwebtoken');
 
@@ -41,7 +42,7 @@ describe('Get User Details By Id UC-204', function () {
             status.should.equal(200)
             message.should.be.a("string").that.equal("Userdata-endpoint: User info for #3");
             data.should.be.an("object");
-            data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAddress", "phoneNumber", "roles");
+            data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAddress", "phoneNumber", "roles", "upcomingMeals");
             data.id.should.be.a("number").that.equal(3);
             data.firstName.should.be.a("string").that.equal("Herman");
             data.lastName.should.be.a("string").that.equal("Huizinga");
@@ -51,6 +52,26 @@ describe('Get User Details By Id UC-204', function () {
             data.emailAddress.should.be.a("string").that.equal("h.huizinga@server.nl");
             data.phoneNumber.should.be.a("string").that.equal("06-12345678");
             data.roles.should.be.an("string").that.equal("editor,guest");
+            data.upcomingMeals.should.be.an("array");
+            if (data.upcomingMeals.length > 0) {
+                expect(data.upcomingMeals.every(obj => {
+                    obj.should.have.keys("id", "name", "description", "price", "isActive", "updateDate", "maxAmountOfParticipants", "isVega", "isVegan", "isToTakeHome", "imageUrl", "dateTime", "createDate", "allergenes");
+                    obj.id.should.be.a("number");
+                    obj.name.should.be.a("string");
+                    obj.description.should.be.a("string");
+                    obj.price.should.be.a("number");
+                    obj.isActive.should.be.a("boolean");
+                    obj.updateDate.should.be.a("string");
+                    obj.maxAmountOfParticipants.should.be.a("number");
+                    obj.isVega.should.be.a("boolean");
+                    obj.isVegan.should.be.a("boolean");
+                    obj.isToTakeHome.should.be.a("boolean");
+                    obj.imageUrl.should.be.a("string");
+                    obj.dateTime.should.be.a("string");
+                    obj.createDate.should.be.a("string");
+                    return obj.allergenes.should.be.an("string");
+                })).to.be.true;
+            }
             done();
         })
     })
