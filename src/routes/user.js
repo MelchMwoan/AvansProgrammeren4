@@ -303,7 +303,12 @@ router.route('/:userId')
                                             message: err.message
                                         });
                                     } else {
-                                        user.isActive = user.isActive == 1 ? true : false
+                                        user.isActive = user.isActive == 1 ? true : false;
+                                        if(req.body.password == undefined){
+                                            user.password = undefined;
+                                        } else {
+                                            user.password = req.body.password;
+                                        }
                                         res.status(200).json({
                                             status: 200,
                                             message: `Userdata Update-endpoint: User with Id #${userId} was succesfully updated`,
