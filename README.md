@@ -36,7 +36,7 @@ To install this API and run it on your own device complete the following steps f
 5. Configure your settings:
     1. Create a .env file in the root folder (same folder of app.js and config.json)
     2. Paste the following data in the .env file:
-    ``` json
+    ```javascript
     API_PORT="xxxx" //The port the API will be listening to, by default 3000
     MYSQL_HOST="xxxx" //The hostadress of your MySql databaseserver, by default localhost
     MYSQL_USER="xxxx" //The MySql username which is used to log into your databaseserver, by default root
