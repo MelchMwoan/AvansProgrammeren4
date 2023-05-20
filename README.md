@@ -5,16 +5,16 @@ This is an API which is used to create the backend of a Share-a-Meal application
 <br>This was an assignment for Avans HBO Informatica Programming 4.
 
 # Table of Contents
-- [Getting Started](#getting-started-back-to-top)
+- [Getting Started](#getting-started---back-to-top-)
     - [Requirements](#requirements)
     - [Installation](#installation)
-- [Usage](#usage)
+- [Usage](#usage---back-to-top-)
     - [Example Deployment](#example-deployment)
     - [Authentication](#authentication)
     - [Request Format](#request-format)
     - [Response Format](#response-format)
     - [Routes](#routes)
-- [What's New](#whats-new)
+- [What's New](#whats-new---back-to-top-)
 
 # Getting Started <br> <p style="font-size: 0.5em"> [Back to top](#share-a-meal-api) </p>
 Here is a simple instruction on how to install this API and run it on your own devices
