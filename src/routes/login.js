@@ -53,7 +53,7 @@ router.post('/', jsonParser, (req, res, next) => {
                             const payload = {
                                 userId: user.id
                             };
-                            jwt.sign(payload, process.env.JWTSECRETKEY, { expiresIn: '1d' }, (err, token) => {
+                            jwt.sign(payload, process.env.JWTSECRETKEY, { expiresIn: '7d' }, (err, token) => {
                                 if(err) {
                                     logger.error(`JWT Error: ${err}`)
                                     res.status(409).json({
