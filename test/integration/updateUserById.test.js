@@ -3,17 +3,17 @@ const chaiHttp = require('chai-http');
 const server = require('../../app.js');
 chai.should();
 chai.use(chaiHttp);
-const dbconnection = require('../../src/utils/mysql-db.js');
+const jwt = require('jsonwebtoken');
 
 describe('Update User Details By Id UC-205', function () {
     it('TC-205-1-MissingEmail', (done) => {
-        //Testing for updating user details with Id without providing an email
-        chai.request(server).put("/api/user/3").end((err, res) => {
+        //Testing for updating user details with Id without email
+        chai.request(server).put("/api/user/1").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(400)
-            message.should.be.a("string").that.contains("Userdata Update-endpoint: Bad Request, \"emailAddress\" is required");
+            message.should.be.a("string").that.equal("Userdata Update-endpoint: Bad Request, \"emailAddress\" is required");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -21,23 +21,29 @@ describe('Update User Details By Id UC-205', function () {
     })
     it('TC-205-2-UpdaterIsNotOwnerOfData', (done) => {
         //Testing for updating user details with Id without being owner
-        //TODO: Testing for ownership through token
-        chai.request(server).put("/api/user/xxxx").end((err, res) => {
+        chai.request(server).put("/api/user/2").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).send({emailAddress:"j.doe@server.com"}).end((err, res) => {
+            res.body.should.be.an("object");
+            res.body.should.have.keys("status", "message", "data");
+            let { data, message, status } = res.body;
+            status.should.equal(403)
+            message.should.be.a("string").that.equal("Userdata Update-endpoint: Forbidden, you are not the owner of the account with id #2");
+            data.should.be.an("object");
+            data.should.be.empty;
             done();
         })
     })
     it('TC-205-3-InvalidPhoneNumber', (done) => {
-        //Testing for updating user details with Id with invalid phonenumber
+        //Testing for updating user details with Id with invalid phone number
         let updateValues = {
             emailAddress: "j.doe@server.com",
-            phoneNumber: "310619410"
+            phoneNumber: "1111"
         }
-        chai.request(server).put("/api/user/2").send(updateValues).end((err, res) => {
+        chai.request(server).put("/api/user/2").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).send(updateValues).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(400)
-            message.should.be.a("string").that.contains("Userdata Update-endpoint: Bad Request, \"310619410\" is not a valid phone number");
+            message.should.be.a("string").that.equal("Userdata Update-endpoint: Bad Request, \"1111\" is not a valid phone number (starts with 06 and contains 10 digits in total)");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -48,12 +54,12 @@ describe('Update User Details By Id UC-205', function () {
         let updateValues = {
             emailAddress: "u.notexists@server.com"
         }
-        chai.request(server).put("/api/user/8").send(updateValues).end((err, res) => {
+        chai.request(server).put("/api/user/9999").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).send(updateValues).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(404)
-            message.should.be.a("string").that.contains("Userdata Update-endpoint: Not Found, User with id #8 and email u.notexists@server.com not found");
+            message.should.be.a("string").that.equal("Userdata Update-endpoint: Not Found, User with id #9999 not found");
             data.should.be.an("object");
             data.should.be.empty;
             done();
@@ -61,13 +67,6 @@ describe('Update User Details By Id UC-205', function () {
     })
     it('TC-205-5-NotLoggedIn', (done) => {
         //Testing for updating user details without being logged in
-        //TODO: test for logged in
-        chai.request(server).put("/api/user/xxxx").end((err, res) => {
-            done();
-        })
-    })
-    it('TC-205-6-SuccesfullyUpdatedUser', (done) => {
-        //Testing for updating user details with Id that does exists
         let updateValues = {
             emailAddress: "m.vandullemen@server.nl",
             city: "Utrecht",
@@ -77,14 +76,42 @@ describe('Update User Details By Id UC-205', function () {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
+            status.should.equal(401)
+            message.should.be.a("string").that.equal(`Authentication-endpoint: Not Authorized, "authorization" is required`);
+            data.should.be.an("object");
+            data.should.be.empty;
+            done();
+        })
+    })
+    it('TC-205-6-SuccesfullyUpdatedUser', (done) => {
+        //Testing for updating user details with Id succesfully
+        let updateValues = {
+            emailAddress: "m.vandullemen@server.nl",
+            city: "Utrecht",
+            lastName: "Kees",
+            password: "Test1234"
+        }
+        chai.request(server).put("/api/user/1").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).send(updateValues).end((err, res) => {
+            res.body.should.be.an("object");
+            res.body.should.have.keys("status", "message", "data");
+            let { data, message, status } = res.body;
             status.should.equal(200)
-            message.should.be.a("string").that.contains("Userdata Update-endpoint: User with Id #1 was succesfully updated");
+            message.should.be.a("string").that.equal("Userdata Update-endpoint: User with Id #1 was succesfully updated");
             data.should.have.keys("id", "firstName", "lastName", "street", "city", "isActive", "emailAddress", "password", "phoneNumber", "roles");
-            data.should.include({city:"Utrecht", lastName:"Kees"})
+            data.id.should.be.a("number").that.equal(1);
+            data.firstName.should.be.a("string").that.equal("Mariëtte");
+            data.lastName.should.be.a("string").that.equal("Kees");
+            data.street.should.be.a("string").that.equal("Lovensdijkstraat");
+            data.city.should.be.a("string").that.equal("Utrecht");
+            data.isActive.should.be.a("boolean").that.equal(true);
+            data.emailAddress.should.be.a("string").that.equal("m.vandullemen@server.nl");
+            data.password.should.be.a("string").that.equal(updateValues.password);
+            data.phoneNumber.should.be.a("string").that.equal("06-12345678");
+            data.roles.should.be.an("string").that.equal("guest");
             updateValues.city = "Breda";
             updateValues.lastName = "van den Dullemen"
-            chai.request(server).put("/api/user/1").send(updateValues).end()
-            done();
+            updateValues.password = "Secret123"
+            chai.request(server).put("/api/user/1").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).send(updateValues).end((err, res) => {done()});
         })
     })
 })

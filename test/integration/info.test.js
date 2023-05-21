@@ -12,11 +12,11 @@ describe('Server-Info', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(200)
-            message.should.be.a("string").that.contains("Server Info-endpoint");
+            message.should.be.a("string").that.equal("Server Info-endpoint");
             data.should.be.an("object");
             data.should.has.property("studentName").to.be.equal("Melchior Willenborg");
             data.should.has.property("studentNumber").to.be.equal(2205378);
-            data.should.has.property("description");
+            data.should.has.property("description").to.be.equal("Dit is de ShareAMeal API voor programmeren 4");
             done();
         })
     })
@@ -26,7 +26,7 @@ describe('Server-Info', function () {
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
             status.should.equal(404)
-            message.should.be.a("string").that.contains("Endpoint not found");
+            message.should.be.a("string").that.equal("Endpoint not found");
             data.should.be.an("object");
             data.should.be.empty;
             done();

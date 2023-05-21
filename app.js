@@ -1,14 +1,12 @@
 const dotenv = require('dotenv');
 const logger = require('tracer').colorConsole();
-if(dotenv.config().error) {
+if (dotenv.config().error) {
     logger.error(`Failed to load dotenv`)
 
 }
 const express = require('express')
 const config = require('./config.json');
 const app = express()
-var bodyParser = require('body-parser')
-var jsonParser = bodyParser.json()
 const port = process.env.API_PORT || config.apiport;
 
 app.listen(port, () => {
@@ -20,10 +18,14 @@ app.use('*', (req, res, next) => {
     next()
 })
 
+const login = require('./src/routes/login.js');
+app.use('/api/login', login);
 const user = require('./src/routes/user.js');
 app.use('/api/user', user);
 const info = require('./src/routes/info.js');
 app.use('/api/info', info);
+const meal = require('./src/routes/meal.js');
+app.use('/api/meal', meal);
 
 app.use('*', (req, res) => {
     logger.error(`${req.method} request on ${req.originalUrl} was not found`)
