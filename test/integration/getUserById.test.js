@@ -22,7 +22,7 @@ describe('Get User Details By Id UC-204', function () {
     })
     it('TC-204-2-UserIdDoesNotExist', (done) => {
         //Testing for getting user details with a non-existent Id
-        chai.request(server).get("/api/user/9999").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).get("/api/user/9999").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -35,7 +35,7 @@ describe('Get User Details By Id UC-204', function () {
     })
     it('TC-204-3-SuccesfullyGettingUserDetailsThroughId', (done) => {
         //Testing for getting user details with a valid Id
-        chai.request(server).get("/api/user/3").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).get("/api/user/3").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;

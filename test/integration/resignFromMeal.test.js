@@ -21,7 +21,7 @@ describe('Resign from meal UC-402', function () {
     })
     it('TC-402-2-MealDoesNotExist', (done) => {
         //Testing for resign from meal that does not exist
-        chai.request(server).delete("/api/meal/9999/participate").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).delete("/api/meal/9999/participate").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -34,7 +34,7 @@ describe('Resign from meal UC-402', function () {
     })
     it('TC-402-3-ParticipationDoesNotExist', (done) => {
         //Testing for resign from meal that does not exist
-        chai.request(server).delete("/api/meal/1/participate").set('Authorization', 'Bearer ' + jwt.sign({ userId: 9999 }, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).delete("/api/meal/1/participate").set('Authorization', 'Bearer ' + jwt.sign({ userId: 9999 }, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -47,8 +47,8 @@ describe('Resign from meal UC-402', function () {
     })
     it('TC-402-4-ResignFromMeal', (done) => {
         //Testing for resign from meal that does not exist
-        chai.request(server).post("/api/meal/1/participate").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
-            chai.request(server).delete("/api/meal/1/participate").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).post("/api/meal/1/participate").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
+            chai.request(server).delete("/api/meal/1/participate").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
                 res.body.should.be.an("object");
                 res.body.should.have.keys("status", "message", "data");
                 let { data, message, status } = res.body;

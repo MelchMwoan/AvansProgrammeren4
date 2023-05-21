@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 describe('Update User Details By Id UC-205', function () {
     it('TC-205-1-MissingEmail', (done) => {
         //Testing for updating user details with Id without email
-        chai.request(server).put("/api/user/1").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).put("/api/user/1").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -21,7 +21,7 @@ describe('Update User Details By Id UC-205', function () {
     })
     it('TC-205-2-UpdaterIsNotOwnerOfData', (done) => {
         //Testing for updating user details with Id without being owner
-        chai.request(server).put("/api/user/2").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).send({emailAddress:"j.doe@server.com"}).end((err, res) => {
+        chai.request(server).put("/api/user/2").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).send({emailAddress:"j.doe@server.com"}).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -38,7 +38,7 @@ describe('Update User Details By Id UC-205', function () {
             emailAddress: "j.doe@server.com",
             phoneNumber: "1111"
         }
-        chai.request(server).put("/api/user/2").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).send(updateValues).end((err, res) => {
+        chai.request(server).put("/api/user/2").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).send(updateValues).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -54,7 +54,7 @@ describe('Update User Details By Id UC-205', function () {
         let updateValues = {
             emailAddress: "u.notexists@server.com"
         }
-        chai.request(server).put("/api/user/9999").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).send(updateValues).end((err, res) => {
+        chai.request(server).put("/api/user/9999").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).send(updateValues).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -91,7 +91,7 @@ describe('Update User Details By Id UC-205', function () {
             lastName: "Kees",
             password: "Test1234"
         }
-        chai.request(server).put("/api/user/1").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).send(updateValues).end((err, res) => {
+        chai.request(server).put("/api/user/1").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).send(updateValues).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -111,7 +111,7 @@ describe('Update User Details By Id UC-205', function () {
             updateValues.city = "Breda";
             updateValues.lastName = "van den Dullemen"
             updateValues.password = "Secret123"
-            chai.request(server).put("/api/user/1").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).send(updateValues).end((err, res) => {done()});
+            chai.request(server).put("/api/user/1").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).send(updateValues).end((err, res) => {done()});
         })
     })
 })

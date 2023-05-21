@@ -21,7 +21,7 @@ describe('Apply to Meal UC-401', function () {
     })
     it('TC-401-2-MealDoesNotExist', (done) => {
         //Testing for applying to meal that does not exist
-        chai.request(server).post("/api/meal/9999/participate").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).post("/api/meal/9999/participate").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -34,7 +34,7 @@ describe('Apply to Meal UC-401', function () {
     })
     it('TC-401-3-SuccesfullyApplied', (done) => {
         //Testing for succesfully applying to meal
-        chai.request(server).post("/api/meal/1/participate").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).post("/api/meal/1/participate").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -49,7 +49,7 @@ describe('Apply to Meal UC-401', function () {
             meal.should.have.keys("id", "name", "description", "price", "isActive", "updateDate", "participants", "maxAmountOfParticipants", "isVega", "isVegan", "isToTakeHome", "imageUrl", "dateTime", "createDate", "cook", "allergenes");
             meal.participants.should.be.an("array")
             chai.expect(meal.participants).to.deep.include(user);
-            chai.request(server).delete("/api/meal/1/participate").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).then();
+            chai.request(server).delete("/api/meal/1/participate").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).then();
             done();
         })
     })
@@ -72,12 +72,12 @@ describe('Apply to Meal UC-401', function () {
             dateTime: new Date().getTime(),
             imageUrl: "https://images.food52.com/8kJ4moklcq55uy3Qw2LTnxqCQP8=/1200x1200/c0c6aec8-e771-4c84-88fb-3aba6448d553--Pasta.jpg"
         }
-        chai.request(server).post("/api/meal").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).send(meal).end((err, res) => {
+        chai.request(server).post("/api/meal").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).send(meal).end((err, res) => {
             let mealId = res.body.data.id;
             chai.request(server).post("/api/user").send(registerJson).end((err, res) => {
                 let newUserId = res.body.data.id;
-                chai.request(server).post(`/api/meal/${mealId}/participate`).set('Authorization', 'Bearer ' + jwt.sign({ userId: newUserId }, process.env.jwtSecretKey)).end((err, res) => {
-                    chai.request(server).post(`/api/meal/${mealId}/participate`).set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
+                chai.request(server).post(`/api/meal/${mealId}/participate`).set('Authorization', 'Bearer ' + jwt.sign({ userId: newUserId }, process.env.JWTSECRETKEY)).end((err, res) => {
+                    chai.request(server).post(`/api/meal/${mealId}/participate`).set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
                         res.body.should.be.an("object");
                         res.body.should.have.keys("status", "message", "data");
                         let { data, message, status } = res.body;
@@ -85,8 +85,8 @@ describe('Apply to Meal UC-401', function () {
                         message.should.be.a("string").that.equal(`Meal Participate-endpoint: Meal with Id #${mealId} is already full`);
                         data.should.be.an("object");
                         data.should.be.empty;
-                        chai.request(server).delete("/api/meal/" + mealId).set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
-                            chai.request(server).delete("/api/user/" + newUserId).set('Authorization', 'Bearer ' + jwt.sign({ userId: newUserId }, process.env.jwtSecretKey)).end((err, res) => {
+                        chai.request(server).delete("/api/meal/" + mealId).set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
+                            chai.request(server).delete("/api/user/" + newUserId).set('Authorization', 'Bearer ' + jwt.sign({ userId: newUserId }, process.env.JWTSECRETKEY)).end((err, res) => {
                                 done();
                             })
                         });

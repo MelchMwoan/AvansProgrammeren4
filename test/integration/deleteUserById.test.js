@@ -18,7 +18,7 @@ const newUser = {
 describe('Delete User By Id UC-206', function () {
     it('TC-206-1-UserDoesNotExist', (done) => {
         //Testing for deleting user that does not exist
-        chai.request(server).delete("/api/user/9999").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).delete("/api/user/9999").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -44,7 +44,7 @@ describe('Delete User By Id UC-206', function () {
     })
     it('TC-206-3-DeleterIsNotOwnerOfData', (done) => {
         //Testing for deleting user details with Id without being owner
-        chai.request(server).delete("/api/user/2").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).delete("/api/user/2").set('Authorization', "Bearer " + jwt.sign({userId: 1}, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -59,7 +59,7 @@ describe('Delete User By Id UC-206', function () {
         //Testing for deleting user details with Id
         chai.request(server).post("/api/user").send(newUser).end((err, res) => {
             const id = res.body.data.id;
-            chai.request(server).delete(`/api/user/${id}`).set('Authorization', "Bearer " + jwt.sign({userId: id}, process.env.jwtSecretKey)).end((err, res) => {
+            chai.request(server).delete(`/api/user/${id}`).set('Authorization', "Bearer " + jwt.sign({userId: id}, process.env.JWTSECRETKEY)).end((err, res) => {
                 res.body.should.be.an("object");
                 res.body.should.have.keys("status", "message", "data");
                 let { data, message, status } = res.body;

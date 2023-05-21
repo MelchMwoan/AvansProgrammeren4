@@ -122,7 +122,7 @@ describe('Register UC-201', function () {
             data.password.should.be.a("string").that.equal("Testpassword1!");
             data.phoneNumber.should.be.a("string").that.equal("06-12345678");
             data.roles.should.be.an("string").that.equal("editor,guest");
-            await chai.request(server).delete(`/api/user/${data.id}`).set('Authorization', "Bearer " + jwt.sign({ userId: data.id }, process.env.jwtSecretKey)).then();
+            await chai.request(server).delete(`/api/user/${data.id}`).set('Authorization', "Bearer " + jwt.sign({ userId: data.id }, process.env.JWTSECRETKEY)).then();
             done();
         })
     })

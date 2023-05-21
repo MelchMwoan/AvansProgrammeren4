@@ -17,7 +17,7 @@ module.exports = {
                 data: {}
             });
         } else {
-            jwt.verify(req.headers.authorization.split(" ")[1], process.env.jwtSecretKey, (err, payload) => {
+            jwt.verify(req.headers.authorization.split(" ")[1], process.env.JWTSECRETKEY, (err, payload) => {
                 if(err) {
                     logger.error(`Unauthorized: ${err}`)
                     res.status(401).json({

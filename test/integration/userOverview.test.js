@@ -10,7 +10,7 @@ const expectedKeys = ["id", "firstName", "lastName", "street", "city", "isActive
 describe('User Overview UC-202', function () {
     it('TC-202-1-ShowAllUsers', (done) => {
         //Testing for at least two users without filters
-        chai.request(server).get("/api/user").set('Authorization', "Bearer " + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).get("/api/user").set('Authorization', "Bearer " + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -34,7 +34,7 @@ describe('User Overview UC-202', function () {
     })
     it('TC-202-2-ShowNoUsersOnNonExistingSearchFields', (done) => {
         //Testing for users that do not exist with filter nonexistent=fake
-        chai.request(server).get("/api/user?nonexistent=fake").set('Authorization', "Bearer " + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).get("/api/user?nonexistent=fake").set('Authorization', "Bearer " + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -47,7 +47,7 @@ describe('User Overview UC-202', function () {
     })
     it('TC-202-3-ShowUsersIsActiveFalse', (done) => {
         //Testing for users that are inactive with filter isActive=false
-        chai.request(server).get("/api/user?isActive=false").set('Authorization', "Bearer " + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).get("/api/user?isActive=false").set('Authorization', "Bearer " + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -72,7 +72,7 @@ describe('User Overview UC-202', function () {
     })
     it('TC-202-4-ShowUsersIsActiveTrue', (done) => {
         //Testing for users that are active with filter isActive=true
-        chai.request(server).get("/api/user?isActive=true").set('Authorization', "Bearer " + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).get("/api/user?isActive=true").set('Authorization', "Bearer " + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -97,7 +97,7 @@ describe('User Overview UC-202', function () {
     })
     it('TC-202-5-ShowUsersOnMultipleFilters', (done) => {
         //Testing for users that are active and life in "Breda" with filter isActive=true&city=Breda
-        chai.request(server).get("/api/user?isActive=true&city=Breda").set('Authorization', "Bearer " + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).get("/api/user?isActive=true&city=Breda").set('Authorization', "Bearer " + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;

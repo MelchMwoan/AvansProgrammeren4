@@ -22,7 +22,7 @@ describe('Get User Profile UC-203', function () {
     })
     it('TC-203-2-SuccesfullGettingProfile', (done) => {
         //Testing for getting profile with valid token
-        chai.request(server).get("/api/user/profile").set('Authorization', "Bearer " + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).get("/api/user/profile").set('Authorization', "Bearer " + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;

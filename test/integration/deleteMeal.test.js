@@ -21,7 +21,7 @@ describe('Delete Meal UC-305', function () {
     })
     it('TC-305-2-NotOwnerOfMeal', (done) => {
         //Testing for deleting meal without being the owner of the meal
-        chai.request(server).delete("/api/meal/2").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).delete("/api/meal/2").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -34,7 +34,7 @@ describe('Delete Meal UC-305', function () {
     })
     it('TC-305-3-MealDoesNotExist', (done) => {
         //Testing for deleting meal that does not exist
-        chai.request(server).delete("/api/meal/9999").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
+        chai.request(server).delete("/api/meal/9999").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -55,9 +55,9 @@ describe('Delete Meal UC-305', function () {
             dateTime: "2021-05-05T18:00:00.000Z",
             imageUrl: "https://images.food52.com/8kJ4moklcq55uy3Qw2LTnxqCQP8=/1200x1200/c0c6aec8-e771-4c84-88fb-3aba6448d553--Pasta.jpg"
         }
-        chai.request(server).post("/api/meal").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).send(meal).end((err, res) => {
+        chai.request(server).post("/api/meal").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).send(meal).end((err, res) => {
             let mealId = res.body.data.id;
-            chai.request(server).delete("/api/meal/" + mealId).set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end((err, res) => {
+            chai.request(server).delete("/api/meal/" + mealId).set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end((err, res) => {
                 res.body.should.be.an("object");
                 res.body.should.have.keys("status", "message", "data");
                 let { data, message, status } = res.body;

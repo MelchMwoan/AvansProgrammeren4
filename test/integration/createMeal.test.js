@@ -13,7 +13,7 @@ describe('Create Meal UC-301', function () {
             price: 5.50,
             maxAmountOfParticipants: 5
         }
-        chai.request(server).post("/api/meal").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).send(meal).end((err, res) => {
+        chai.request(server).post("/api/meal").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).send(meal).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -53,7 +53,7 @@ describe('Create Meal UC-301', function () {
             dateTime: "2021-05-05T18:00:00.000Z",
             imageUrl: "https://images.food52.com/8kJ4moklcq55uy3Qw2LTnxqCQP8=/1200x1200/c0c6aec8-e771-4c84-88fb-3aba6448d553--Pasta.jpg"
         }
-        chai.request(server).post("/api/meal").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).send(meal).end((err, res) => {
+        chai.request(server).post("/api/meal").set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).send(meal).end((err, res) => {
             res.body.should.be.an("object");
             res.body.should.have.keys("status", "message", "data");
             let { data, message, status } = res.body;
@@ -87,7 +87,7 @@ describe('Create Meal UC-301', function () {
             data.isVegan.should.be.a("boolean").that.equal(false);
             data.participants.should.be.an("array").that.is.empty;
             data.updateDate.should.be.a("string");
-            chai.request(server).delete("/api/meal/" + data.id).set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.jwtSecretKey)).end();
+            chai.request(server).delete("/api/meal/" + data.id).set('Authorization', 'Bearer ' + jwt.sign({ userId: 1 }, process.env.JWTSECRETKEY)).end();
             done();
         })
     })

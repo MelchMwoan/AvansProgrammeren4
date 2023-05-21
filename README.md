@@ -43,7 +43,7 @@ To install this API and run it on your own device complete the following steps f
     MYSQL_DATABASE="xxxx" //The actual name of the sharemeal database on your databaseserver, by default shareameal
     MYSQL_PORT="xxxx" //The port your MySql databaseserver is listening to, by default 3306
     MYSQL_PASSWORD="xxxx" //The password connected with the MYSQL_USER, if your MySql server does not use a password remove this variable
-    jwtSecretKey="xxxx" //The key you use for the authentication system (unique code)
+    JWTSECRETKEY="xxxx" //The key you use for the authentication system (unique code)
     ```
     3. Change the values to your own mysql database settings
 6. Run `node app.js` in the still open Terminal, this will start the API.
