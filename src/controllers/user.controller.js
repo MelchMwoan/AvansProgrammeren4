@@ -240,6 +240,7 @@ const userController = {
                             message = `Userdata-endpoint: User info for #${returnuser.id}`;
                         }
                         returnuser.isActive = returnuser.isActive == 1 ? true : false
+                        returnuser.password = undefined;
                         returnuser.upcomingMeals = [];
                         let sqlStatement = `Select * FROM \`meal\` WHERE \`cookId\`=${req.params.userId} AND \`dateTime\`>=CURDATE()`;
                         logger.debug(sqlStatement)

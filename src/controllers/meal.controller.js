@@ -649,6 +649,7 @@ const mealController = {
                                                 });
                                             }
                                             if (results2.length != 0) {
+                                                results2[0].isActive = results2[0].isActive == 1 ? true : false
                                                 participantList.push((({ password, ...o }) => ({ ...o }))(results2[0]))
                                             }
                                             if (i == results.length - 1) {
@@ -701,7 +702,7 @@ const mealController = {
                         });
                     } else if (results.length != 0) {
                         if (req.userId == results[0].cookId) {
-                            let sqlStatement = "SELECT * FROM `user` WHERE `id`=" + req.params.participantId;
+                            let sqlStatement = "SELECT * FROM `user` WHERE `id`=" + req.params.participantId + " AND `id` IN (SELECT `userId` FROM `meal_participants_user` WHERE `mealId`=" + req.params.mealId + ")";
                             logger.debug(sqlStatement)
                             conn.query(sqlStatement, function (err, results, fields) {
                                 if (err) {
@@ -712,16 +713,17 @@ const mealController = {
                                     });
                                 } else if (results.length != 0) {
                                     logger.info(`Found user with id #${req.params.participantId}`);
+                                    results[0].isActive = results[0].isActive == 1 ? true : false
                                     res.status(200).json({
                                         status: 200,
                                         message: `ParticipantDetail-endpoint: Found user with id #${req.params.participantId}`,
                                         data: (({ password, ...o }) => o)(results[0])
                                     });
                                 } else {
-                                    logger.error(`User with id #${req.params.participantId} does not exist`)
+                                    logger.error(`User with id #${req.params.participantId} does not have a participant detail for meal with id #${req.params.mealId}`)
                                     res.status(404).json({
                                         status: 404,
-                                        message: `ParticipantDetail-endpoint: Not Found, User with id #${req.params.participantId} does not exist`,
+                                        message: `ParticipantDetail-endpoint: Not Found, User with id #${req.params.participantId} does not have a participant detail for meal with id #${req.params.mealId}`,
                                         data: {}
                                     });
                                 }
