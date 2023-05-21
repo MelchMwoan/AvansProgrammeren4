@@ -75,10 +75,10 @@ describe('Create Meal UC-301', function () {
             data.cook.lastName.should.be.a("string").that.equal("van den Dullemen");
             data.cook.emailAddress.should.be.a("string").that.equal("m.vandullemen@server.nl")
             data.cook.phoneNumber.should.be.a("string").that.equal("06-12345678");
-            data.cook.street.should.be.a("string").that.equal("");
+            data.cook.street.should.be.a("string").that.equal("Lovensdijkstraat");
             data.cook.city.should.be.a("string").that.equal("Breda");
             data.cook.isActive.should.be.a("boolean").that.equal(true);
-            data.cook.roles.should.be.an("string").that.is.empty;
+            data.cook.roles.should.be.an("string").that.equal("guest");
             data.createDate.should.be.a("string");
             data.dateTime.should.be.a("string").that.equal("2021-05-05T18:00:00.000Z");
             data.imageUrl.should.be.a("string").that.equal("https://images.food52.com/8kJ4moklcq55uy3Qw2LTnxqCQP8=/1200x1200/c0c6aec8-e771-4c84-88fb-3aba6448d553--Pasta.jpg");

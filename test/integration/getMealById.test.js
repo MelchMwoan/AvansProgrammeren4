@@ -65,10 +65,10 @@ describe('Get Meal By Id UC-304', function () {
             data.cook.lastName.should.be.a("string").that.equal("van den Dullemen");
             data.cook.emailAddress.should.be.a("string").that.equal("m.vandullemen@server.nl")
             data.cook.phoneNumber.should.be.a("string").that.equal("06-12345678");
-            data.cook.street.should.be.a("string").that.equal("");
+            data.cook.street.should.be.a("string").that.equal("Lovensdijkstraat");
             data.cook.city.should.be.a("string").that.equal("Breda");
             data.cook.isActive.should.be.a("boolean").that.equal(true);
-            data.cook.roles.should.be.an("string").that.is.empty;
+            data.cook.roles.should.be.an("string").that.equal("guest");
             data.allergenes.should.be.an("string").that.equal("gluten,lactose");
             done();
         })

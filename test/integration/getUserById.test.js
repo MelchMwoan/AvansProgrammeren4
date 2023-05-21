@@ -46,8 +46,8 @@ describe('Get User Details By Id UC-204', function () {
             data.id.should.be.a("number").that.equal(3);
             data.firstName.should.be.a("string").that.equal("Herman");
             data.lastName.should.be.a("string").that.equal("Huizinga");
-            data.street.should.be.a("string").that.equal("");
-            data.city.should.be.a("string").that.equal("");
+            data.street.should.be.a("string").that.equal("Lageweg");
+            data.city.should.be.a("string").that.equal("Den Bosch");
             data.isActive.should.be.a("boolean").that.equal(true);
             data.emailAddress.should.be.a("string").that.equal("h.huizinga@server.nl");
             data.phoneNumber.should.be.a("string").that.equal("06-12345678");

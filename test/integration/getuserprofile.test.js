@@ -33,11 +33,11 @@ describe('Get User Profile UC-203', function () {
             data.id.should.be.a("number").that.equal(1);
             data.firstName.should.be.a("string").that.equal("Mariëtte");
             data.lastName.should.be.a("string").that.equal("van den Dullemen");
-            data.street.should.be.a("string").that.equal("");
+            data.street.should.be.a("string").that.equal("Lovensdijkstraat");
             data.city.should.be.a("string").that.equal("Breda");
             data.isActive.should.be.a("boolean").that.equal(true);
             data.emailAddress.should.be.a("string").that.equal("m.vandullemen@server.nl");
-            data.roles.should.be.an("string").that.equal("");
+            data.roles.should.be.an("string").that.equal("guest");
             data.phoneNumber.should.be.a("string").that.equal("06-12345678");
             data.upcomingMeals.should.be.an("array");
             if (data.upcomingMeals.length > 0) {

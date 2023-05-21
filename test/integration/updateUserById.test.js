@@ -101,13 +101,13 @@ describe('Update User Details By Id UC-205', function () {
             data.id.should.be.a("number").that.equal(1);
             data.firstName.should.be.a("string").that.equal("Mariëtte");
             data.lastName.should.be.a("string").that.equal("Kees");
-            data.street.should.be.a("string").that.equal("");
+            data.street.should.be.a("string").that.equal("Lovensdijkstraat");
             data.city.should.be.a("string").that.equal("Utrecht");
             data.isActive.should.be.a("boolean").that.equal(true);
             data.emailAddress.should.be.a("string").that.equal("m.vandullemen@server.nl");
             data.password.should.be.a("string").that.equal(updateValues.password);
             data.phoneNumber.should.be.a("string").that.equal("06-12345678");
-            data.roles.should.be.an("string").that.equal("");
+            data.roles.should.be.an("string").that.equal("guest");
             updateValues.city = "Breda";
             updateValues.lastName = "van den Dullemen"
             updateValues.password = "Secret123"
